@@ -257,7 +257,7 @@ export function Stage0() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-orange-50/70 to-blue-50 py-20 px-4 text-slate-800">
+    <div className="min-h-screen bg-linear-to-b from-rose-50 via-orange-50/70 to-blue-50 py-20 px-4 text-slate-800">
       <Button
         variant="ghost"
         asChild
@@ -275,7 +275,7 @@ export function Stage0() {
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Button
               asChild
-              className="px-8 py-6 text-base bg-gradient-to-r from-rose-500 via-pink-500 to-orange-400 shadow-lg transition-transform duration-200 hover:scale-105 hover:shadow-xl"
+              className="px-8 py-6 text-base bg-linear-to-r from-rose-500 via-pink-500 to-orange-400 shadow-lg transition-transform duration-200 hover:scale-105 hover:shadow-xl"
             >
               <Link to="/journey/stage1">立即開始闖關</Link>
             </Button>
@@ -308,7 +308,7 @@ export function Stage0() {
                 style={{ top: `${stage.top}%`, left: `${stage.left}%` }}
               >
                 <div
-                  className={`bg-gradient-to-br ${stage.gradient} ${stage.border} border-2 rounded-2xl p-3 shadow-lg backdrop-blur-sm transition-transform duration-500 hover:-translate-y-1 ${
+                  className={`bg-linear-to-br ${stage.gradient} ${stage.border} border-2 rounded-2xl p-3 shadow-lg backdrop-blur-sm transition-transform duration-500 hover:-translate-y-1 ${
                     stage.ring === 'inner' ? 'animate-float-slow' : 'animate-float-slower'
                   }`}
                   style={{ animationDelay: `${stage.delay}s` }}
@@ -330,7 +330,7 @@ export function Stage0() {
         </section>
 
         <section className="mt-16">
-          <div className="rounded-3xl bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 border border-rose-100/70 shadow-lg p-8 space-y-6">
+          <div className="rounded-3xl bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 border border-rose-100/70 shadow-lg p-8 space-y-6">
             <div className="flex flex-wrap items-baseline gap-3 text-rose-800">
               <p className="text-xl font-semibold tracking-[0.35em] uppercase text-rose-500">π = 3.14159</p>
               <h2 className="text-3xl font-black">腎臟照護口訣</h2>

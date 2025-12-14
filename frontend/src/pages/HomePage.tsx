@@ -102,7 +102,7 @@ export function HomePage() {
                 </Button>
                 <Button 
                   asChild
-                  className="w-full bg-gradient-to-r from-rose-500 via-pink-500 to-orange-400 hover:opacity-90 text-white text-base shadow-lg"
+                  className="w-full bg-linear-to-r from-rose-500 via-pink-500 to-orange-400 hover:opacity-90 text-white text-base shadow-lg"
                 >
                   <Link to="/journey">開始腎臟闖關</Link>
                 </Button>

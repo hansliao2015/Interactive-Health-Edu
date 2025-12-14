@@ -5,7 +5,7 @@ export function Stage4() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-emerald-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-emerald-50 py-16 px-4 text-slate-800 relative overflow-hidden">
       <Button
         variant="ghost"
         onClick={() => navigate('/journey/stage3')}
