@@ -146,7 +146,7 @@ export function Stage3() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
       <Button
         variant="ghost"
         onClick={() => navigate('/journey/stage2')}
@@ -246,7 +246,7 @@ export function Stage3() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-3xl border border-rose-100 bg-gradient-to-br from-white to-rose-50 p-6 shadow-inner">
+              <div className="rounded-3xl border border-rose-100 bg-linear-to-br from-white to-rose-50 p-6 shadow-inner">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.4em] text-rose-500">計量表</p>
@@ -260,7 +260,7 @@ export function Stage3() {
                 <div className="mt-5 grid gap-4 md:grid-cols-[88px_1fr] items-center">
                   <div className={`relative h-64 w-16 rounded-[28px] bg-white border border-slate-100 shadow-inner overflow-hidden ring-8 ${config.glow}`}>
                     <div
-                      className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${config.bar} transition-all duration-500`}
+                      className={`absolute bottom-0 left-0 right-0 bg-linear-to-t ${config.bar} transition-all duration-500`}
                       style={{ height: `${progress}%` }}
                     ></div>
                     <div className="absolute inset-0 pointer-events-none">

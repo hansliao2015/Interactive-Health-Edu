@@ -111,7 +111,7 @@ export function Stage1() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
       <Button
         variant="ghost"
         onClick={() => navigate('/journey')}
@@ -148,7 +148,7 @@ export function Stage1() {
 
         <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-gradient-to-br from-rose-50 to-white border border-rose-100 p-4 flex flex-col gap-3">
+            <div className="rounded-2xl bg-linear-to-br from-rose-50 to-white border border-rose-100 p-4 flex flex-col gap-3">
               <p className="font-semibold text-rose-700">位置與外型</p>
               <div className="rounded-2xl border border-rose-100 shadow-sm bg-white/80 p-2">
                 <img
@@ -161,7 +161,7 @@ export function Stage1() {
                 人體後腰部各有一顆腎臟，長得像蠶豆，長度約 10-12 公分。
               </p>
             </div>
-            <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-white border border-orange-100 p-4 flex flex-col gap-3">
+            <div className="rounded-2xl bg-linear-to-br from-orange-50 to-white border border-orange-100 p-4 flex flex-col gap-3">
               <p className="font-semibold text-orange-700">組成</p>
               <div className="rounded-2xl border border-orange-100 shadow-sm bg-white/80 p-2">
                 <img
@@ -180,12 +180,12 @@ export function Stage1() {
         <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100 flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1.4fr)_320px] md:items-center md:gap-10">
           <div className="flex flex-col items-center justify-center md:justify-self-center text-center">
             <div className={`relative w-72 h-72 transition-transform duration-300 ${isHighlighting ? 'scale-105' : ''}`}>
-              <div className="absolute inset-0 bg-gradient-to-b from-rose-200 to-rose-300 rounded-[40%] shadow-lg"></div>
+              <div className="absolute inset-0 bg-linear-to-b from-rose-200 to-rose-300 rounded-[40%] shadow-lg"></div>
               {isHighlighting && (
                 <div className="absolute -inset-2 rounded-[45%] border border-rose-200/60 animate-ping opacity-70 pointer-events-none"></div>
               )}
               <div
-                className={`absolute inset-4 bg-gradient-to-b from-rose-50 to-white rounded-[40%] border-[6px] border-rose-300 shadow-inner transition-shadow duration-300 ${
+                className={`absolute inset-4 bg-linear-to-b from-rose-50 to-white rounded-[40%] border-[6px] border-rose-300 shadow-inner transition-shadow duration-300 ${
                   isHighlighting ? 'shadow-[0_0_25px_rgba(251,113,133,0.4)]' : ''
                 }`}
               ></div>
@@ -249,7 +249,7 @@ export function Stage1() {
                 )
               })}
             </div>
-            <div className="rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-white p-5 space-y-3 shadow-inner">
+            <div className="rounded-2xl border border-rose-100 bg-linear-to-br from-rose-50 to-white p-5 space-y-3 shadow-inner">
               <div className="flex items-center justify-between text-xs font-semibold tracking-[0.2em] text-rose-600 uppercase">
                 <span>探索進度</span>
                 <span>

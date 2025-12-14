@@ -350,7 +350,7 @@ export function Stage2() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
       <Button
         variant="ghost"
         onClick={() => navigate('/journey/stage1')}
@@ -384,7 +384,7 @@ export function Stage2() {
 
         <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100 space-y-6">
           <div className="grid gap-4 lg:grid-cols-[220px_1fr] items-start">
-            <div className="rounded-2xl bg-gradient-to-br from-rose-50 to-white border border-rose-100 p-5 text-sm text-rose-700 space-y-3">
+            <div className="rounded-2xl bg-linear-to-br from-rose-50 to-white border border-rose-100 p-5 text-sm text-rose-700 space-y-3">
               <p className="text-base font-semibold text-rose-800">檢查提醒</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>數值需依照年齡、性別、種族進行換算。</li>
@@ -548,7 +548,7 @@ export function Stage2() {
                         <button
                           key={`${selectedCase.id}-${lab.id}`}
                           onClick={() => setFocusedLabId(lab.id)}
-                          className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors hover:opacity-90 hover:-translate-y-[1px] ${palette}`}
+                          className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors hover:opacity-90 hover:-translate-y-px ${palette}`}
                         >
                           {label}：{lab.value}
                         </button>
@@ -595,11 +595,11 @@ export function Stage2() {
                   className={`rounded-3xl border p-5 text-left transition-all flex flex-col gap-3 hover:-translate-y-1 ${
                     isActive
                       ? 'border-rose-400 bg-slate-900 text-white shadow-lg'
-                      : 'border-slate-200 bg-gradient-to-b from-white to-slate-50 hover:border-rose-200 hover:shadow-md'
+                      : 'border-slate-200 bg-linear-to-b from-white to-slate-50 hover:border-rose-200 hover:shadow-md'
                   }`}
                 >
                   <div
-                    className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${exam.color} flex items-center justify-center text-2xl ${
+                    className={`w-12 h-12 rounded-2xl bg-linear-to-br ${exam.color} flex items-center justify-center text-2xl ${
                       isActive ? 'text-slate-900 bg-white' : ''
                     }`}
                   >
