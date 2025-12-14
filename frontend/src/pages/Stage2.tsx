@@ -290,6 +290,7 @@ export function Stage2() {
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
   const [quizError, setQuizError] = useState<string | null>(null)
+  const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [selectedCaseId, setSelectedCaseId] = useState(stage2Cases[0].id)
   const [focusedLabId, setFocusedLabId] = useState<LabRow['id'] | null>(null)
@@ -330,6 +331,7 @@ export function Stage2() {
 
   const handleArrowClick = () => {
     if (!isUnlocked) {
+      setQuizState('idle')
       setIsQuizOpen(true)
       return
     }
@@ -343,12 +345,12 @@ export function Stage2() {
     }
     if (selectedQuizOption === quizData.answer) {
       setIsUnlocked(true)
-      setIsQuizOpen(false)
+      setQuizState('correct')
       setQuizError(null)
-      setSelectedQuizOption(null)
-      setStageUnlocked('stage2', true)
+      void setStageUnlocked('stage2', true)
     } else {
       setQuizError('答案不正確，再試一次。')
+      setQuizState('wrong')
     }
   }
 
@@ -657,6 +659,7 @@ export function Stage2() {
                     onChange={(e) => {
                       setSelectedQuizOption(e.target.value)
                       setQuizError(null)
+                      setQuizState('idle')
                     }}
                   />
                   <span className="font-medium">{option.label}</span>
@@ -664,6 +667,11 @@ export function Stage2() {
               ))}
             </div>
             {quizError && <p className="text-sm text-rose-500">{quizError}</p>}
+            {quizState === 'correct' && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                解鎖成功！再點一次右側箭頭即可進入下一關。
+              </div>
+            )}
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setIsQuizOpen(false)}>
                 先等等
@@ -671,6 +679,11 @@ export function Stage2() {
               <Button onClick={handleSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6">
                 確認答案
               </Button>
+              {quizState === 'correct' && (
+                <Button onClick={() => navigate('/journey/stage3')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6">
+                  進入下一關
+                </Button>
+              )}
             </div>
           </div>
         </div>

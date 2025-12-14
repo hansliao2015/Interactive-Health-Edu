@@ -6,6 +6,17 @@
  * All business logic is separated into controller files for better organization.
  */
 
+// Handle CORS
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(204); // No Content
+    exit;
+}
+
 require_once 'config.php';
 require_once 'controllers/AuthController.php';
 require_once 'controllers/ProgressController.php';

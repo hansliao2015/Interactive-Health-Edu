@@ -47,6 +47,7 @@ export function Stage1() {
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([])
   const [isUnlocked, setIsUnlocked] = useState(false)
+  const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
   const [quizError, setQuizError] = useState<string | null>(null)
   const [functionIndex, setFunctionIndex] = useState(0)
   const [visitedFunctions, setVisitedFunctions] = useState<boolean[]>(() =>
@@ -71,6 +72,7 @@ export function Stage1() {
 
   const handleArrowClick = () => {
     if (!isUnlocked) {
+      setQuizState('idle')
       setIsQuizOpen(true)
       return
     }
@@ -87,12 +89,12 @@ export function Stage1() {
       quizData.answers.every((ans) => selectedAnswers.includes(ans))
     if (isCorrect) {
       setIsUnlocked(true)
-      setIsQuizOpen(false)
+      setQuizState('correct')
       setQuizError(null)
-      setSelectedAnswers([])
-      setStageUnlocked('stage1', true)
+      void setStageUnlocked('stage1', true)
     } else {
       setQuizError('答案不完全正確，再試一次。')
+      setQuizState('wrong')
     }
   }
 
@@ -111,6 +113,7 @@ export function Stage1() {
       prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
     )
     setQuizError(null)
+    setQuizState('idle')
   }
 
   return (
@@ -313,6 +316,11 @@ export function Stage1() {
               })}
             </div>
             {quizError && <p className="text-sm text-rose-500">{quizError}</p>}
+            {quizState === 'correct' && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                解鎖成功！再點一次右側箭頭即可進入下一關。
+              </div>
+            )}
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setIsQuizOpen(false)}>
                 先等等
@@ -320,6 +328,11 @@ export function Stage1() {
               <Button onClick={handleSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6">
                 確認答案
               </Button>
+              {quizState === 'correct' && (
+                <Button onClick={() => navigate('/journey/stage2')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6">
+                  進入下一關
+                </Button>
+              )}
             </div>
           </div>
         </div>

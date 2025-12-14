@@ -1,4 +1,17 @@
-export type StageKey = 'stage1' | 'stage2' | 'stage3' | 'stage4'
+export type StageKey =
+  | 'stage1'
+  | 'stage2'
+  | 'stage3'
+  | 'stage4'
+  | 'stage5'
+  | 'stage6'
+  | 'stage7'
+  | 'stage8'
+  | 'stage9'
+  | 'stage10'
+  | 'stage11'
+  | 'stage12'
+  | 'stage13'
 
 export type User = {
   id: number
@@ -20,16 +33,6 @@ export type Stage3State = {
   riskFactorIds: string[]
   symptomIds: string[]
 }
-
-export type JourneyProgress = Partial<
-  Record<
-    StageKey,
-    {
-      unlocked?: boolean
-      stage3State?: Stage3State
-    }
-  >
->
 
 export type ApiResponse<T = unknown> = {
   success: boolean

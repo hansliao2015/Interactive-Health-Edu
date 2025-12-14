@@ -2,7 +2,21 @@ import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse } from 
 
 const API_BASE_URL = 'http://localhost:8000/api.php'
 
-const VALID_STAGES: StageKey[] = ['stage1', 'stage2', 'stage3', 'stage4']
+const VALID_STAGES: StageKey[] = [
+  'stage1',
+  'stage2',
+  'stage3',
+  'stage4',
+  'stage5',
+  'stage6',
+  'stage7',
+  'stage8',
+  'stage9',
+  'stage10',
+  'stage11',
+  'stage12',
+  'stage13',
+]
 
 /* Auth API */
 

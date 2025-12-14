@@ -321,7 +321,7 @@ export function Stage3() {
                       return
                     }
                     setQuizState('correct')
-                    setStageUnlocked('stage3', true)
+                    void setStageUnlocked('stage3', true)
                     setIsUnlocked(true)
                   }}
                   className="w-full text-left rounded-2xl border border-slate-200 bg-white px-4 py-3 transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-rose-200 cursor-pointer"
