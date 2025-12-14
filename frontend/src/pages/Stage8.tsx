@@ -76,7 +76,8 @@ export function Stage8() {
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
   const [quizError, setQuizError] = useState<string | null>(null)
-  
+  const [gateNotice, setGateNotice] = useState<string | null>(null)
+   
   const [visitedSubstances, setVisitedSubstances] = useState<string[]>(() => saved?.visitedSubstances ?? [])
   const [substanceModalContent, setSubstanceModalContent] = useState<Substance | null>(null)
 
@@ -106,11 +107,13 @@ export function Stage8() {
   const handleArrowClick = () => {
     if (!isUnlocked) {
       if (!allBubblesPopped) {
-        alert('請先點擊所有泡泡，完成本關卡的探索！')
-      } else {
-        setQuizState('idle')
-        setIsQuizOpen(true)
+        setGateNotice('請先完成泡泡探索（點擊所有泡泡），再來解鎖下一關。')
+        return
       }
+
+      setGateNotice(null)
+      setQuizState('idle')
+      setIsQuizOpen(true)
       return
     }
     navigate('/journey/stage9')
@@ -118,7 +121,7 @@ export function Stage8() {
 
   const handleSubmit = () => {
     if (selectedAnswers.length === 0) {
-      setQuizError('請至少選擇一個答案！')
+      setQuizError('請先選擇答案')
       return
     }
     const isCorrect =
@@ -131,7 +134,7 @@ export function Stage8() {
       void setStageUnlocked('stage8', true)
     } else {
       setQuizState('wrong')
-      setQuizError('答案不完全正確，請參考本關內容再試一次！')
+      setQuizError('答案不正確，再試一次。')
     }
   }
 
@@ -149,25 +152,22 @@ export function Stage8() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
       <Button
         variant="ghost"
         onClick={() => navigate('/journey/stage7')}
-        className="fixed top-20 left-4 z-30 bg-white/70 backdrop-blur border border-white hover:bg-white shadow-sm animate-[fade-in_0.5s_ease-out]"
+        className="fixed top-20 left-4 z-30 bg-white/70 backdrop-blur border border-white hover:bg-white shadow-sm cursor-pointer"
       >
         ← 回到上一關
       </Button>
       <button
         aria-label={isUnlocked ? '前往下一關' : '解鎖下一關'}
         onClick={handleArrowClick}
-        className={`fixed top-1/2 right-4 -translate-y-1/2 z-30 flex flex-col items-center gap-2 rounded-3xl px-4 py-5 shadow-xl transition-all duration-200 animate-[fade-in_0.5s_ease-out] ${
+        className={`fixed top-1/2 right-4 -translate-y-1/2 z-30 flex flex-col items-center gap-2 rounded-3xl px-4 py-5 shadow-xl transition-all duration-200 cursor-pointer ${
           isUnlocked
             ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-            : !allBubblesPopped
-              ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-              : 'bg-rose-500 text-white hover:bg-rose-600 animate-pulse'
+            : 'bg-slate-200 text-slate-500 hover:bg-slate-300 hover:text-slate-600'
         }`}
-        disabled={!isUnlocked && !allBubblesPopped}
       >
         <span className="text-2xl">{isUnlocked ? '🔓' : '🔒'}</span>
         <svg
@@ -180,38 +180,49 @@ export function Stage8() {
         </svg>
       </button>
 
-      <div className="max-w-7xl mx-auto space-y-10 animate-[stagger-in_0.5s_ease-out]">
+      <div className="max-w-6xl mx-auto space-y-10">
         <header className="space-y-3">
           <p className="text-sm uppercase tracking-[0.4em] text-rose-500">Stage 08 / 藥品檢驗所</p>
           <h1 className="text-3xl font-black text-rose-800">護腎還是傷腎？</h1>
           <p className="text-slate-600">
             藥物是健康的雙面刃。點擊泡泡了解哪些藥物和習慣可能傷害腎臟，是保護自己的第一步。
           </p>
+          {gateNotice && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {gateNotice}
+            </div>
+          )}
         </header>
 
         <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100 grid md:grid-cols-[1fr_0.8fr] gap-12 items-start">
           <div className="relative w-full max-w-lg mx-auto aspect-square">
             <div className="absolute inset-0">
-              <img 
-                src="/images/img6.png" 
-                alt="難過的腎" 
-                className={`w-full h-full object-contain transition-opacity duration-1000 animate-float-slower ${allBubblesPopped ? 'opacity-0' : 'opacity-30'}`}
+              <img
+                src="/images/img6.png"
+                alt="腎臟示意"
+                className={`w-full h-full object-contain transition-opacity duration-1000 animate-float-slower ${
+                  allBubblesPopped ? 'opacity-0' : 'opacity-30'
+                }`}
               />
-               <img 
-                src="/images/img7.png" 
-                alt="開心的腎" 
-                className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${allBubblesPopped ? 'opacity-100' : 'opacity-0'}`}
+              <img
+                src="/images/img7.png"
+                alt="健康腎臟示意"
+                className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${
+                  allBubblesPopped ? 'opacity-100' : 'opacity-0'
+                }`}
               />
             </div>
             
-            {harmfulSubstances.map((sub, i) => {
+            {harmfulSubstances.map((sub) => {
               const isVisited = visitedSubstances.includes(sub.name)
               return (
                 <button
                   key={sub.name}
-                  onClick={() => setSubstanceModalContent(sub)}
-                  style={{ animationDelay: `${i * 100}ms` }}
-                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-24 h-24 rounded-full text-center font-semibold shadow-lg transition-all duration-500 z-10 animate-float-slow animate-stagger-in ${
+                  onClick={() => {
+                    setGateNotice(null)
+                    setSubstanceModalContent(sub)
+                  }}
+                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-24 h-24 rounded-full text-center font-semibold shadow-lg transition-all duration-500 z-10 animate-float-slow cursor-pointer ${
                     sub.position
                   } ${
                     isVisited
@@ -247,28 +258,27 @@ export function Stage8() {
               <Button
                 variant="outline"
                 onClick={resetBubbles}
-                className="w-full bg-white/80 hover:bg-white"
+                className="w-full bg-gradient-to-r from-rose-50 via-white to-amber-50 border border-rose-200 text-rose-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-transform cursor-pointer"
               >
-                重製泡泡
+                🔄 重製泡泡
               </Button>
            </div>
          </section>
 
         {visitedSubstances.length > 0 && (
-          <section className="bg-amber-50/70 backdrop-blur-sm border border-amber-200 rounded-3xl p-8 mt-12 animate-[stagger-in_0.5s_ease-out_forwards] opacity-0">
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-2xl font-bold text-amber-800 text-center mb-6">收集到的資訊</h2>
+          <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100">
+            <div className="max-w-5xl mx-auto space-y-6">
+              <h2 className="text-2xl font-bold text-rose-800 text-center">收集到的資訊</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {visitedSubstances.map((name, idx) => {
+                {visitedSubstances.map((name) => {
                   const sub = harmfulSubstances.find(s => s.name === name)!
                   return (
                     <div 
                       key={name}
-                      style={{ animationDelay: `${idx * 100}ms` }}
-                      className="p-4 rounded-xl bg-white/80 border border-amber-200/80 shadow-sm animate-[stagger-in_0.5s_ease-out_forwards] opacity-0"
+                      className="p-4 rounded-2xl bg-rose-50/60 border border-rose-100 shadow-sm"
                     >
-                      <p className="font-bold text-amber-900">{sub.name}</p>
-                      <p className="text-sm text-amber-800 mt-1">{sub.description}</p>
+                      <p className="font-bold text-rose-900">{sub.name}</p>
+                      <p className="text-sm text-slate-700 mt-1">{sub.description}</p>
                     </div>
                   )
                 })}
@@ -280,11 +290,11 @@ export function Stage8() {
       
       {substanceModalContent && (
         <div 
-          className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center z-50 px-4 animate-[fade-in_0.3s_ease-out]"
+          className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center z-50 px-4"
           onClick={handleModalClose}
         >
           <div 
-            className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full space-y-4 relative animate-[scale-in_0.3s_ease-out]"
+            className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full space-y-4 relative"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
@@ -292,7 +302,7 @@ export function Stage8() {
             </div>
             <p className="text-slate-600 leading-relaxed text-center">{substanceModalContent.description}</p>
             <div className="text-right mt-4">
-              <Button onClick={handleModalClose} className="w-full bg-rose-500 hover:bg-rose-600">
+              <Button onClick={handleModalClose} className="w-full bg-rose-500 hover:bg-rose-600 cursor-pointer">
                 關閉
               </Button>
             </div>
@@ -301,34 +311,43 @@ export function Stage8() {
       )}
 
       {isQuizOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40 px-4 animate-[fade-in_0.3s_ease-out]">
-          <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full space-y-4 animate-[scale-in_0.3s_ease-out]">
-            <p className="text-sm uppercase tracking-[0.3em] text-rose-500">Stage 8 最終測驗</p>
-            <h3 className="text-xl font-semibold text-slate-900">{quizData.question}</h3>
-            {/* Quiz implementation remains the same */}
-            <div className="space-y-3">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40 px-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full space-y-4">
+            <p className="text-sm uppercase tracking-[0.3em] text-rose-500">Stage 08 問題</p>
+            <h3 className="text-xl font-semibold text-slate-900">解鎖下一關</h3>
+            <p className="text-sm text-slate-600 leading-relaxed">題目：{quizData.question}</p>
+
+            <div className="grid gap-2">
               {quizData.options.map((option) => (
                 <label
                   key={option.value}
                   className={`flex items-center gap-3 rounded-2xl border p-3 cursor-pointer transition-colors ${
                     selectedAnswers.includes(option.value)
-                      ? 'border-rose-400 bg-rose-50 text-rose-800'
-                      : 'border-slate-200 hover:border-rose-200'
+                      ? 'border-rose-400 bg-rose-50 text-rose-700'
+                      : 'border-slate-200 hover:border-emerald-200'
                   }`}
                 >
                   <input
                     type="checkbox"
-                    className="h-4 w-4 rounded border-slate-300 text-rose-500 focus:ring-rose-400"
+                    className="sr-only"
                     checked={selectedAnswers.includes(option.value)}
                     onChange={() => toggleAnswer(option.value)}
                   />
-                  <span className="font-medium">{option.label}</span>
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-md border text-xs font-black ${
+                      selectedAnswers.includes(option.value) ? 'border-rose-400 bg-rose-500 text-white' : 'border-slate-300 bg-white text-white'
+                    }`}
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                  <span className="font-semibold text-slate-900">{option.label}</span>
                 </label>
               ))}
             </div>
-            {quizError && <p className="text-sm text-red-500">{quizError}</p>}
+            {quizError && <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{quizError}</div>}
             {quizState === 'correct' && (
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                 解鎖成功！你可以按「進入下一關」繼續闖關。
               </div>
             )}
@@ -337,14 +356,14 @@ export function Stage8() {
                 關閉
               </Button>
               {quizState !== 'correct' && (
-                <Button onClick={handleSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6">
+                <Button onClick={handleSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6 cursor-pointer">
                   確認答案
                 </Button>
               )}
               {quizState === 'correct' && (
                 <Button
                   onClick={() => navigate('/journey/stage9')}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-6"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 cursor-pointer"
                 >
                   進入下一關
                 </Button>

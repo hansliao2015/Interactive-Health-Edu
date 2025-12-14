@@ -76,25 +76,7 @@ export const dietPrinciples: DietPrinciple[] = [
   },
 ]
 
-export type LabelCard = {
-  id: string
-  name: string
-  kcal: number
-  proteinG: number
-  sodiumMg: number
-  potassiumMg: number
-  correct: '鈉' | '鉀' | '蛋白質' | '熱量'
-}
-
-export const labelCards: LabelCard[] = [
-  { id: 'a', name: '湯品（每份）', kcal: 90, proteinG: 3, sodiumMg: 850, potassiumMg: 120, correct: '鈉' },
-  { id: 'b', name: '果汁（每份）', kcal: 130, proteinG: 1, sodiumMg: 15, potassiumMg: 420, correct: '鉀' },
-  { id: 'c', name: '蛋白棒（每份）', kcal: 210, proteinG: 18, sodiumMg: 180, potassiumMg: 140, correct: '蛋白質' },
-  { id: 'd', name: '餅乾（每份）', kcal: 260, proteinG: 4, sodiumMg: 320, potassiumMg: 80, correct: '熱量' },
-]
-
 type QuizState = 'idle' | 'wrong' | 'correct'
-type LabelTarget = '鈉' | '鉀' | '蛋白質' | '熱量'
 
 type Stage7SavedState = {
   activePrincipleId: DietPrincipleId | null
@@ -102,23 +84,13 @@ type Stage7SavedState = {
   analyzer: {
     egfr: string
     upcr: string
-    urineOutput: string
-    potassium: string
     weight: string
     analyzed: boolean
-  }
-  labelGame: {
-    roundIndex: number
-    selectedCardId: string | null
-    status: QuizState
-    score: number
   }
   quiz: {
     selectedOption: string | null
   }
 }
-
-const labelTargets: LabelTarget[] = ['鈉', '鉀', '蛋白質', '熱量']
 
 export function Stage7() {
   const navigate = useNavigate()
@@ -134,17 +106,8 @@ export function Stage7() {
 
   const [egfr, setEgfr] = useState(() => saved?.analyzer.egfr ?? '')
   const [upcr, setUpcr] = useState(() => saved?.analyzer.upcr ?? '')
-  const [urineOutput, setUrineOutput] = useState(() => saved?.analyzer.urineOutput ?? '')
-  const [potassium, setPotassium] = useState(() => saved?.analyzer.potassium ?? '')
   const [weight, setWeight] = useState(() => saved?.analyzer.weight ?? '')
   const [hasAnalyzed, setHasAnalyzed] = useState(() => saved?.analyzer.analyzed ?? false)
-
-  const [labelRoundIndex, setLabelRoundIndex] = useState(() => saved?.labelGame.roundIndex ?? 0)
-  const [labelSelectedCardId, setLabelSelectedCardId] = useState<string | null>(
-    () => saved?.labelGame.selectedCardId ?? null,
-  )
-  const [labelStatus, setLabelStatus] = useState<QuizState>(() => saved?.labelGame.status ?? 'idle')
-  const [labelScore, setLabelScore] = useState(() => saved?.labelGame.score ?? 0)
 
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(() => saved?.quiz.selectedOption ?? null)
@@ -165,8 +128,7 @@ export function Stage7() {
     const state: Stage7SavedState = {
       activePrincipleId,
       visitedPrincipleIds,
-      analyzer: { egfr, upcr, urineOutput, potassium, weight, analyzed: hasAnalyzed },
-      labelGame: { roundIndex: labelRoundIndex, selectedCardId: labelSelectedCardId, status: labelStatus, score: labelScore },
+      analyzer: { egfr, upcr, weight, analyzed: hasAnalyzed },
       quiz: { selectedOption: selectedQuizOption },
     }
     setStageState<Stage7SavedState>('stage7', state)
@@ -175,14 +137,8 @@ export function Stage7() {
     visitedPrincipleIds,
     egfr,
     upcr,
-    urineOutput,
-    potassium,
     weight,
     hasAnalyzed,
-    labelRoundIndex,
-    labelSelectedCardId,
-    labelStatus,
-    labelScore,
     selectedQuizOption,
   ])
 
@@ -206,21 +162,18 @@ export function Stage7() {
 
   const explorePercent = Math.round((visitedPrincipleIds.length / dietPrinciples.length) * 100)
 
-  const labelTarget = labelTargets[labelRoundIndex % labelTargets.length]
-  const labelRoundDone = labelRoundIndex >= labelTargets.length
-
   const analysis = useMemo(() => {
     if (!hasAnalyzed) return null
 
     const egfrNumber = Number(egfr)
     const upcrNumber = Number(upcr)
-    const urineNumber = Number(urineOutput)
-    const potassiumNumber = Number(potassium)
     const weightNumber = Number(weight)
 
-    const meetsStartDiet = (Number.isFinite(egfrNumber) && egfrNumber > 0 && egfrNumber < 45) || (Number.isFinite(upcrNumber) && upcrNumber > 150)
-    const needsLowPotassium =
-      (Number.isFinite(urineNumber) && urineNumber > 0 && urineNumber < 1000) || (Number.isFinite(potassiumNumber) && potassiumNumber > 5.1)
+    const hasValidEgfr = Number.isFinite(egfrNumber) && egfrNumber > 0
+    const hasValidUpcr = Number.isFinite(upcrNumber) && upcrNumber > 0
+    const canDecideStartDiet = hasValidEgfr || hasValidUpcr
+
+    const meetsStartDiet = (hasValidEgfr && egfrNumber < 45) || (hasValidUpcr && upcrNumber > 150)
 
     const proteinRange =
       Number.isFinite(weightNumber) && weightNumber > 0
@@ -232,8 +185,8 @@ export function Stage7() {
         ? { min: Math.round(weightNumber * 30), max: Math.round(weightNumber * 35) }
         : null
 
-    return { meetsStartDiet, needsLowPotassium, proteinRange, kcalRange }
-  }, [egfr, upcr, urineOutput, potassium, weight, hasAnalyzed])
+    return { canDecideStartDiet, meetsStartDiet, proteinRange, kcalRange }
+  }, [egfr, upcr, weight, hasAnalyzed])
 
   const handleArrowClick = () => {
     if (isUnlocked) {
@@ -249,39 +202,19 @@ export function Stage7() {
   const submitQuiz = async () => {
     setQuizError(null)
     if (!selectedQuizOption) {
-      setQuizError('請先選擇一個答案。')
+      setQuizError('請先選擇答案')
       return
     }
 
     if (selectedQuizOption !== 'egfr_or_upcr') {
       setQuizState('wrong')
-      setQuizError('答案不正確，請再試一次。')
+      setQuizError('答案不正確，再試一次。')
       return
     }
 
     await setStageUnlocked('stage7', true)
     setIsUnlocked(true)
     setQuizState('correct')
-  }
-
-  const submitLabelRound = () => {
-    if (!labelSelectedCardId) return
-    const card = labelCards.find((item) => item.id === labelSelectedCardId)
-    if (!card) return
-
-    if (card.correct !== labelTarget) {
-      setLabelStatus('wrong')
-      return
-    }
-
-    if (labelStatus !== 'correct') setLabelScore((prev) => prev + 1)
-    setLabelStatus('correct')
-  }
-
-  const nextLabelRound = () => {
-    setLabelRoundIndex((prev) => prev + 1)
-    setLabelSelectedCardId(null)
-    setLabelStatus('idle')
   }
 
   return (
@@ -314,7 +247,7 @@ export function Stage7() {
           <p className="text-sm uppercase tracking-[0.4em] text-rose-500">Stage 07 / 飲食迷思站</p>
           <h1 className="text-3xl font-black text-rose-800">吃對方法，比少吃更重要</h1>
           <p className="text-slate-600">
-            點選「五大飲食任務」了解原則，玩一輪「營養標示偵探」，最後用右側鎖頭完成測驗解鎖下一關。
+            點選「五大飲食任務」了解原則，並用右側的「快速分析」做自我檢視，最後用右側鎖頭完成測驗解鎖下一關。
           </p>
         </header>
 
@@ -342,9 +275,6 @@ export function Stage7() {
                     <div className="text-4xl">🍽️</div>
                     <p className="mt-2 text-sm uppercase tracking-[0.35em] text-slate-500">Diet Mission</p>
                     <p className="mt-2 text-lg font-black text-slate-900">飲食迷思站</p>
-                    <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                      點外圈任務卡，右側會出現詳細內容。
-                    </p>
                   </div>
 
                   {wheelPositions.map((position, index) => {
@@ -389,7 +319,7 @@ export function Stage7() {
               <div className="rounded-3xl border border-rose-100 bg-linear-to-br from-rose-50 to-white p-5 shadow-inner space-y-2">
                 <p className="text-xs uppercase tracking-[0.35em] text-rose-600 font-semibold">開始飲食調整的條件</p>
                 <p className="text-sm text-slate-700">
-                  eGFR <span className="font-semibold">45</span> ml/min/1.73m² 或 UPCR <span className="font-semibold">&gt; 150</span>{' '}
+                  eGFR <span className="font-semibold">&lt; 45</span> ml/min/1.73m² 或 UPCR <span className="font-semibold">&gt; 150</span>{' '}
                   （需依個別情況調整）
                 </p>
               </div>
@@ -436,94 +366,112 @@ export function Stage7() {
                 <div>
                   <p className="text-xs uppercase tracking-[0.35em] text-slate-500">快速分析</p>
                   <h3 className="text-lg font-black text-slate-900 mt-2">我需要開始腎臟病飲食調整嗎？</h3>
-                  <p className="text-sm text-slate-600 mt-2">填完後按「查看結果」才會更新右側分析。</p>
                 </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    setHasAnalyzed(true)
+                  }}
+                  className="space-y-3"
+                >
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <label className="space-y-1 text-sm text-slate-700">
+                      <span className="text-xs text-slate-600 font-semibold">eGFR</span>
+                      <input
+                        value={egfr}
+                        onChange={(e) => {
+                          setEgfr(e.target.value)
+                          setHasAnalyzed(false)
+                        }}
+                        type="number"
+                        step="any"
+                        inputMode="decimal"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                        placeholder="例如 42"
+                      />
+                    </label>
+                    <label className="space-y-1 text-sm text-slate-700">
+                      <span className="text-xs text-slate-600 font-semibold">UPCR</span>
+                      <input
+                        value={upcr}
+                        onChange={(e) => {
+                          setUpcr(e.target.value)
+                          setHasAnalyzed(false)
+                        }}
+                        type="number"
+                        step="any"
+                        inputMode="decimal"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                        placeholder="例如 180"
+                      />
+                    </label>
+                    <label className="space-y-1 text-sm text-slate-700">
+                      <span className="text-xs text-slate-600 font-semibold">體重（kg，可選）</span>
+                      <input
+                        value={weight}
+                        onChange={(e) => {
+                          setWeight(e.target.value)
+                          setHasAnalyzed(false)
+                        }}
+                        type="number"
+                        step="any"
+                        inputMode="decimal"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                        placeholder="例如 60"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2">
+                    <Button type="submit" className="bg-rose-500 hover:bg-rose-600 text-white px-6 cursor-pointer">
+                      查看結果
+                    </Button>
+                  </div>
+                </form>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="space-y-1 text-sm text-slate-700">
-                    <span className="text-xs text-slate-500">eGFR</span>
-                    <input
-                      value={egfr}
-                      onChange={(e) => {
-                        setEgfr(e.target.value)
-                        setHasAnalyzed(false)
-                      }}
-                      inputMode="decimal"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
-                      placeholder="例如 42"
-                    />
-                  </label>
-                  <label className="space-y-1 text-sm text-slate-700">
-                    <span className="text-xs text-slate-500">UPCR</span>
-                    <input
-                      value={upcr}
-                      onChange={(e) => {
-                        setUpcr(e.target.value)
-                        setHasAnalyzed(false)
-                      }}
-                      inputMode="decimal"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
-                      placeholder="例如 180"
-                    />
-                  </label>
-                  <label className="space-y-1 text-sm text-slate-700">
-                    <span className="text-xs text-slate-500">體重（公斤，可選）</span>
-                    <input
-                      value={weight}
-                      onChange={(e) => {
-                        setWeight(e.target.value)
-                        setHasAnalyzed(false)
-                      }}
-                      inputMode="decimal"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
-                      placeholder="例如 60"
-                    />
-                  </label>
-                  <label className="space-y-1 text-sm text-slate-700">
-                    <span className="text-xs text-slate-500">前一天尿量（ml，可選）</span>
-                    <input
-                      value={urineOutput}
-                      onChange={(e) => {
-                        setUrineOutput(e.target.value)
-                        setHasAnalyzed(false)
-                      }}
-                      inputMode="decimal"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
-                      placeholder="例如 900"
-                    />
-                  </label>
-                  <label className="space-y-1 text-sm text-slate-700 sm:col-span-2">
-                    <span className="text-xs text-slate-500">血鉀 K（mEq/L，可選）</span>
-                    <input
-                      value={potassium}
-                      onChange={(e) => {
-                        setPotassium(e.target.value)
-                        setHasAnalyzed(false)
-                      }}
-                      inputMode="decimal"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
-                      placeholder="例如 5.3"
-                    />
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-end gap-2">
-                  <Button
-                    onClick={() => setHasAnalyzed(true)}
-                    className="bg-rose-500 hover:bg-rose-600 text-white px-6 cursor-pointer"
-                  >
-                    查看結果
-                  </Button>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                    <p className="font-semibold text-slate-800">eGFR</p>
+                    <p className="mt-1 leading-relaxed">腎絲球過濾率，數值越低代表腎功能越差。</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                    <p className="font-semibold text-slate-800">UPCR</p>
+                    <p className="mt-1 leading-relaxed">尿蛋白/肌酸酐比，數值越高代表蛋白尿越多。</p>
+                  </div>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
                   {!analysis ? (
                     <p className="text-slate-600">尚未查看結果。</p>
                   ) : (
-                    <div className="space-y-2">
-                      <p className="font-semibold text-slate-900">
-                        {analysis.meetsStartDiet ? '符合開始飲食調整條件' : '未達開始飲食調整條件'}
-                      </p>
+                    <div className="space-y-3">
+                      {!analysis.canDecideStartDiet ? (
+                        <div className="rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                          請至少填寫 eGFR 或 UPCR 才能判定是否需要開始飲食調整。
+                        </div>
+                      ) : (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div
+                            className={`rounded-2xl px-4 py-3 text-sm font-semibold border ${
+                              analysis.meetsStartDiet
+                                ? 'bg-rose-100 border-rose-300 text-rose-800 shadow-sm'
+                                : 'bg-slate-50 border-slate-200 text-slate-500'
+                            }`}
+                          >
+                            需要飲食調整
+                          </div>
+                          <div
+                            className={`rounded-2xl px-4 py-3 text-sm font-semibold border ${
+                              !analysis.meetsStartDiet
+                                ? 'bg-emerald-100 border-emerald-300 text-emerald-800 shadow-sm'
+                                : 'bg-slate-50 border-slate-200 text-slate-500'
+                            }`}
+                          >
+                            暫不需要飲食調整
+                          </div>
+                        </div>
+                      )}
                       {analysis.proteinRange && (
                         <p className="text-slate-700">
                           低蛋白參考：<span className="font-semibold">{analysis.proteinRange.min}～{analysis.proteinRange.max} g/日</span>（0.6～0.8 g/kg）
@@ -534,91 +482,12 @@ export function Stage7() {
                           熱量參考：<span className="font-semibold">{analysis.kcalRange.min}～{analysis.kcalRange.max} kcal/日</span>（30～35 kcal/kg）
                         </p>
                       )}
-                      <p className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${analysis.needsLowPotassium ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                        {analysis.needsLowPotassium ? '需要留意鉀：尿量偏少或血鉀偏高' : '鉀：未偵測到需要特別留意的條件'}
-                      </p>
                       <p className="text-xs text-slate-500">僅供學習與自我檢視，仍需依醫師/營養師建議調整。</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.35em] text-slate-500">小遊戲</p>
-                    <h3 className="text-lg font-black text-slate-900 mt-2">營養標示偵探</h3>
-                    <p className="text-sm text-slate-600 mt-2">選一張卡，再按「確認答案」。答錯不給提示，重來一次就好。</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-slate-500">得分</p>
-                    <p className="text-lg font-black text-slate-900">{labelScore}/{labelTargets.length}</p>
-                  </div>
-                </div>
-
-                {!labelRoundDone ? (
-                  <div className="space-y-3">
-                    <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-                      第 {labelRoundIndex + 1} 題：哪一張最需要注意「<span className="font-semibold">{labelTarget}</span>」？
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {labelCards.map((card) => {
-                        const selected = card.id === labelSelectedCardId
-                        return (
-                          <button
-                            key={card.id}
-                            onClick={() => {
-                              setLabelSelectedCardId(card.id)
-                              setLabelStatus('idle')
-                            }}
-                            className={`rounded-3xl border p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${
-                              selected ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-white hover:border-rose-200'
-                            }`}
-                          >
-                            <p className="text-sm font-black text-slate-900">{card.name}</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-600">
-                              <p>熱量：<span className="font-semibold text-slate-900">{card.kcal}</span> kcal</p>
-                              <p>蛋白質：<span className="font-semibold text-slate-900">{card.proteinG}</span> g</p>
-                              <p>鈉：<span className="font-semibold text-slate-900">{card.sodiumMg}</span> mg</p>
-                              <p>鉀：<span className="font-semibold text-slate-900">{card.potassiumMg}</span> mg</p>
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    {labelStatus === 'wrong' && (
-                      <p className="text-sm text-rose-600">答案不正確，請再試一次。</p>
-                    )}
-                    {labelStatus === 'correct' && (
-                      <p className="text-sm text-emerald-700">答對了！可以進入下一題。</p>
-                    )}
-
-                    <div className="flex justify-end gap-2">
-                      {labelStatus !== 'correct' ? (
-                        <Button
-                          onClick={submitLabelRound}
-                          disabled={!labelSelectedCardId}
-                          className="bg-rose-500 hover:bg-rose-600 text-white px-6 cursor-pointer"
-                        >
-                          確認答案
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={nextLabelRound}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 cursor-pointer"
-                        >
-                          下一題
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
-                    你已完成所有題目！得分 {labelScore}/{labelTargets.length}。
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </section>
@@ -627,9 +496,11 @@ export function Stage7() {
       {isQuizOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40 px-4">
           <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full space-y-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-rose-500">Stage 7 解鎖測驗</p>
-            <h3 className="text-xl font-semibold text-slate-900">下列哪個條件符合「開始腎臟病飲食調整」的門檻？</h3>
-            <div className="space-y-3">
+            <p className="text-sm uppercase tracking-[0.3em] text-rose-500">Stage 7 問題</p>
+            <h3 className="text-xl font-semibold text-slate-900">解鎖下一關</h3>
+            <p className="text-sm text-slate-600 leading-relaxed">題目：下列哪個條件符合「開始腎臟病飲食調整」的門檻？</p>
+
+            <div className="grid gap-2">
               {[
                 { label: 'eGFR ≥ 90', value: 'egfr_90' },
                 { label: 'UPCR ≤ 150', value: 'upcr_150' },
@@ -640,24 +511,25 @@ export function Stage7() {
                   key={option.value}
                   className={`flex items-center gap-3 rounded-2xl border p-3 cursor-pointer transition-colors ${
                     selectedQuizOption === option.value
-                      ? 'border-rose-400 bg-rose-50 text-rose-800'
-                      : 'border-slate-200 hover:border-rose-200'
+                      ? 'border-rose-400 bg-rose-50 text-rose-700'
+                      : 'border-slate-200 hover:border-emerald-200'
                   }`}
                 >
                   <input
                     type="radio"
                     name="stage7-quiz"
-                    className="h-4 w-4 border-slate-300 text-rose-500 focus:ring-rose-400"
+                    value={option.value}
+                    className="sr-only"
                     checked={selectedQuizOption === option.value}
                     onChange={() => setSelectedQuizOption(option.value)}
                   />
-                  <span className="font-medium">{option.label}</span>
+                  <span className="font-semibold text-slate-900">{option.label}</span>
                 </label>
               ))}
             </div>
-            {quizError && <p className="text-sm text-rose-600">{quizError}</p>}
+            {quizError && <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{quizError}</div>}
             {quizState === 'correct' && (
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                 解鎖成功！你可以按「進入下一關」繼續闖關。
               </div>
             )}
