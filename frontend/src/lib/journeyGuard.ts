@@ -1,6 +1,6 @@
 import { getStageUnlocked } from './journeyProgress'
 
-const stageOrder = ['stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'stage6', 'stage7'] as const
+const stageOrder = ['stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'stage6', 'stage7', 'stage8'] as const
 export type GuardStageKey = (typeof stageOrder)[number]
 
 export const resolveLockedRedirectPath = async (target: GuardStageKey): Promise<string | null> => {
@@ -21,4 +21,3 @@ export const resolveLockedRedirectPath = async (target: GuardStageKey): Promise<
 
   return `/journey/${lastUnlocked}`
 }
-

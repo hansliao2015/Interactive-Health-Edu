@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 import { resolveLockedRedirectPath } from '../lib/journeyGuard'
+import { getStageState, setStageState } from '../lib/stageState'
 
 type TrioTopic = {
   id: 'bp' | 'sugar' | 'lipid'
@@ -105,17 +106,34 @@ const statusLabel: Record<TargetStatus, string> = {
 
 export function Stage6() {
   const navigate = useNavigate()
+
+  type Stage6State = {
+    activeTopicId: TrioTopic['id'] | null
+    visitedTopicIds: TrioTopic['id'][]
+    targetStatus: Record<string, TargetStatus | null>
+    selectedQuizOption: string | null
+  }
+
+  const saved = getStageState<Stage6State>('stage6')
   const [isUnlocked, setIsUnlockedState] = useState(false)
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
-  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
+  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(() => saved?.selectedQuizOption ?? null)
   const [quizError, setQuizError] = useState<string | null>(null)
 
-  const [activeTopicId, setActiveTopicId] = useState<TrioTopic['id'] | null>(null)
-  const [visitedTopicIds, setVisitedTopicIds] = useState<TrioTopic['id'][]>([])
-  const [targetStatus, setTargetStatus] = useState<Record<string, TargetStatus | null>>(() =>
-    Object.fromEntries(targetItems.map((item) => [item.id, null])) as Record<string, TargetStatus | null>
+  const [activeTopicId, setActiveTopicId] = useState<TrioTopic['id'] | null>(() => saved?.activeTopicId ?? null)
+  const [visitedTopicIds, setVisitedTopicIds] = useState<TrioTopic['id'][]>(() =>
+    Array.isArray(saved?.visitedTopicIds) ? saved.visitedTopicIds : []
   )
+  const [targetStatus, setTargetStatus] = useState<Record<string, TargetStatus | null>>(() => {
+    const base = Object.fromEntries(targetItems.map((item) => [item.id, null])) as Record<string, TargetStatus | null>
+    if (!saved?.targetStatus || typeof saved.targetStatus !== 'object') return base
+    for (const item of targetItems) {
+      const value = (saved.targetStatus as Record<string, unknown>)[item.id]
+      if (value === 'done' || value === 'pending' || value === null) base[item.id] = value as TargetStatus | null
+    }
+    return base
+  })
 
   useEffect(() => {
     resolveLockedRedirectPath('stage6').then((path) => {
@@ -126,6 +144,10 @@ export function Stage6() {
   useEffect(() => {
     getStageUnlocked('stage6').then((unlocked) => setIsUnlockedState(unlocked))
   }, [])
+
+  useEffect(() => {
+    setStageState<Stage6State>('stage6', { activeTopicId, visitedTopicIds, targetStatus, selectedQuizOption })
+  }, [activeTopicId, selectedQuizOption, targetStatus, visitedTopicIds])
 
   const activeTopic = useMemo(
     () => (activeTopicId ? trioTopics.find((item) => item.id === activeTopicId) ?? null : null),

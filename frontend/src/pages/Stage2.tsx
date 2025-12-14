@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 import { resolveLockedRedirectPath } from '../lib/journeyGuard'
+import { getStageState, setStageState } from '../lib/stageState'
 
 type LabRow = {
   id: string
@@ -285,16 +286,27 @@ const stage2Cases: Stage2Case[] = [
 
 export function Stage2() {
   const navigate = useNavigate()
-  const [selectedGfr, setSelectedGfr] = useState(gfrStages[0].id)
-  const [selectedAlbumin, setSelectedAlbumin] = useState(albuminStages[0].id)
-  const [activeExam, setActiveExam] = useState(imagingExams[0].id)
+
+  type Stage2State = {
+    selectedGfr: string
+    selectedAlbumin: string
+    activeExam: string
+    selectedCaseId: string
+    focusedLabId: LabRow['id'] | null
+    selectedQuizOption: string | null
+  }
+
+  const saved = getStageState<Stage2State>('stage2')
+  const [selectedGfr, setSelectedGfr] = useState(() => saved?.selectedGfr ?? gfrStages[0].id)
+  const [selectedAlbumin, setSelectedAlbumin] = useState(() => saved?.selectedAlbumin ?? albuminStages[0].id)
+  const [activeExam, setActiveExam] = useState(() => saved?.activeExam ?? imagingExams[0].id)
   const [isQuizOpen, setIsQuizOpen] = useState(false)
-  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
+  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(() => saved?.selectedQuizOption ?? null)
   const [quizError, setQuizError] = useState<string | null>(null)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
   const [isUnlocked, setIsUnlocked] = useState(false)
-  const [selectedCaseId, setSelectedCaseId] = useState(stage2Cases[0].id)
-  const [focusedLabId, setFocusedLabId] = useState<LabRow['id'] | null>(null)
+  const [selectedCaseId, setSelectedCaseId] = useState(() => saved?.selectedCaseId ?? stage2Cases[0].id)
+  const [focusedLabId, setFocusedLabId] = useState<LabRow['id'] | null>(() => saved?.focusedLabId ?? null)
 
   useEffect(() => {
     resolveLockedRedirectPath('stage2').then((path) => {
@@ -307,6 +319,17 @@ export function Stage2() {
       setIsUnlocked(unlocked)
     })
   }, [])
+
+  useEffect(() => {
+    setStageState<Stage2State>('stage2', {
+      selectedGfr,
+      selectedAlbumin,
+      activeExam,
+      selectedCaseId,
+      focusedLabId,
+      selectedQuizOption,
+    })
+  }, [activeExam, focusedLabId, selectedAlbumin, selectedCaseId, selectedGfr, selectedQuizOption])
 
   const selectedGfrStage = useMemo(() => gfrStages.find((stage) => stage.id === selectedGfr)!, [selectedGfr])
   const selectedAlbuminStage = useMemo(

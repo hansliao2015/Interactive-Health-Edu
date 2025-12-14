@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 import { resolveLockedRedirectPath } from '../lib/journeyGuard'
+import { getStageState, setStageState } from '../lib/stageState'
 import clsx from 'clsx'
 
 // Helper type
@@ -92,12 +93,20 @@ function ValueStepper({ value, onValueChange, step = 1, min = 0, max = 1000 }: {
 
 export function Stage5() {
   const navigate = useNavigate()
-  const [plan, setPlan] = useState<Plan>({ minutesPerDay: 30, daysPerWeek: 3 })
-  const [selectedStage, setSelectedStage] = useState<'early' | 'mid' | 'late'>('early')
+
+  type Stage5State = {
+    plan: Plan
+    selectedStage: 'early' | 'mid' | 'late'
+    selectedQuizOption: string | null
+  }
+
+  const saved = getStageState<Stage5State>('stage5')
+  const [plan, setPlan] = useState<Plan>(() => saved?.plan ?? { minutesPerDay: 30, daysPerWeek: 3 })
+  const [selectedStage, setSelectedStage] = useState<'early' | 'mid' | 'late'>(() => saved?.selectedStage ?? 'early')
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [quizOpen, setQuizOpen] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
-  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
+  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(() => saved?.selectedQuizOption ?? null)
   const [quizError, setQuizError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -115,6 +124,10 @@ export function Stage5() {
     }
     void checkAccess()
   }, [navigate])
+
+  useEffect(() => {
+    setStageState<Stage5State>('stage5', { plan, selectedStage, selectedQuizOption })
+  }, [plan, selectedQuizOption, selectedStage])
 
   const weeklyMinutes = useMemo(() => plan.minutesPerDay * plan.daysPerWeek, [plan])
   const percent = Math.min(100, Math.round((weeklyMinutes / 150) * 100))
@@ -295,7 +308,7 @@ export function Stage5() {
           <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full space-y-4">
             <p className="text-sm uppercase tracking-[0.3em] text-rose-500">Stage 5 問題</p>
             <h3 className="text-xl font-semibold text-slate-900">解鎖下一關</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">題目：每週建議至少累積多少分鐘的運動量才符合簡報的目標？</p>
+            <p className="text-sm text-slate-600 leading-relaxed">題目：每週建議至少累積多少分鐘的運動量？</p>
 
             <div className="grid gap-2">
               {[

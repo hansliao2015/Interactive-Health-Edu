@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
+import { getStageState, setStageState } from '../lib/stageState'
 
 const kidneyFunctions = [
   {
@@ -44,15 +45,26 @@ const quizData = {
 
 export function Stage1() {
   const navigate = useNavigate()
+
+  type Stage1State = {
+    functionIndex: number
+    visitedFunctions: boolean[]
+    selectedAnswers: string[]
+  }
+
+  const saved = getStageState<Stage1State>('stage1')
   const [isQuizOpen, setIsQuizOpen] = useState(false)
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([])
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>(() => saved?.selectedAnswers ?? [])
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
   const [quizError, setQuizError] = useState<string | null>(null)
-  const [functionIndex, setFunctionIndex] = useState(0)
-  const [visitedFunctions, setVisitedFunctions] = useState<boolean[]>(() =>
-    kidneyFunctions.map((_, idx) => idx === 0)
-  )
+  const [functionIndex, setFunctionIndex] = useState(() => (typeof saved?.functionIndex === 'number' ? saved.functionIndex : 0))
+  const [visitedFunctions, setVisitedFunctions] = useState<boolean[]>(() => {
+    if (Array.isArray(saved?.visitedFunctions) && saved.visitedFunctions.length === kidneyFunctions.length) {
+      return saved.visitedFunctions.map(Boolean)
+    }
+    return kidneyFunctions.map((_, idx) => idx === 0)
+  })
   const [isHighlighting, setIsHighlighting] = useState(false)
   const currentFunction = kidneyFunctions[functionIndex]
   const discoveredCount = visitedFunctions.filter(Boolean).length
@@ -63,6 +75,10 @@ export function Stage1() {
       setIsUnlocked(unlocked)
     })
   }, [])
+
+  useEffect(() => {
+    setStageState<Stage1State>('stage1', { functionIndex, visitedFunctions, selectedAnswers })
+  }, [functionIndex, selectedAnswers, visitedFunctions])
 
   useEffect(() => {
     setIsHighlighting(true)
