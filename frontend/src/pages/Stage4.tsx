@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStage4State, getStageUnlocked, setStage4State, setStageUnlocked, type Stage4Scenario } from '../lib/journeyProgress'
+import { resolveLockedRedirectPath } from '../lib/journeyGuard'
 
 type TargetInfo =
   | { kind: 'range'; minMl: number; maxMl: number }
@@ -125,6 +126,12 @@ function NumberField({
 export function Stage4() {
   const navigate = useNavigate()
 
+  useEffect(() => {
+    resolveLockedRedirectPath('stage4').then((path) => {
+      if (path) navigate(path, { replace: true })
+    })
+  }, [navigate])
+
   const [scenario, setScenario] = useState<Stage4Scenario>('normal')
   const [weightKg, setWeightKg] = useState<number | null>(50)
   const [yesterdayUrineMl, setYesterdayUrineMl] = useState<number | null>(null)
@@ -155,6 +162,8 @@ export function Stage4() {
   }, [])
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
+  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
+  const [quizError, setQuizError] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [resultTarget, setResultTarget] = useState<TargetInfo | null>(null)
@@ -245,6 +254,8 @@ export function Stage4() {
         onClick={() => {
           if (!isUnlocked) {
             setQuizState('idle')
+            setSelectedQuizOption(null)
+            setQuizError(null)
             setIsQuizOpen(true)
             return
           }
@@ -439,34 +450,38 @@ export function Stage4() {
                 { id: 'c', label: '每天固定喝 3000 ml' },
                 { id: 'd', label: '總喝水量越多越好' },
               ].map((opt) => (
-                <button
+                <label
                   key={opt.id}
-                  onClick={async () => {
-                    const correct = opt.id === 'b'
-                    if (!correct) {
-                      setQuizState('wrong')
-                      return
-                    }
-                    setQuizState('correct')
-                    await setStageUnlocked('stage4', true)
-                    setIsUnlocked(true)
-                  }}
-                  className="w-full text-left rounded-2xl border border-slate-200 bg-white px-4 py-3 transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-rose-200 cursor-pointer"
+                  className={`flex items-center gap-3 rounded-2xl border p-3 cursor-pointer transition-colors ${
+                    selectedQuizOption === opt.id ? 'border-rose-400 bg-rose-50 text-rose-700' : 'border-slate-200 hover:border-rose-200'
+                  }`}
                 >
+                  <input
+                    type="radio"
+                    name="quiz4"
+                    value={opt.id}
+                    className="sr-only"
+                    checked={selectedQuizOption === opt.id}
+                    onChange={(e) => {
+                      setSelectedQuizOption(e.target.value)
+                      setQuizState('idle')
+                      setQuizError(null)
+                    }}
+                  />
                   <span className="font-semibold text-slate-900">{opt.label}</span>
-                </button>
+                </label>
               ))}
             </div>
 
-            {quizState === 'wrong' && (
+            {quizError && (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                答錯，請再試一次。
+                {quizError}
               </div>
             )}
 
             {quizState === 'correct' && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                解鎖成功！再點一次右側箭頭即可進入下一關。
+                解鎖成功！你可以按「進入下一關」繼續闖關。
               </div>
             )}
 
@@ -474,6 +489,29 @@ export function Stage4() {
               <Button variant="ghost" onClick={() => setIsQuizOpen(false)}>
                 關閉
               </Button>
+              {quizState !== 'correct' && (
+                <Button
+                  onClick={async () => {
+                    if (!selectedQuizOption) {
+                      setQuizError('請先選擇答案')
+                      return
+                    }
+                    const correct = selectedQuizOption === 'b'
+                    if (!correct) {
+                      setQuizState('wrong')
+                      setQuizError('答案不正確，再試一次。')
+                      return
+                    }
+                    setQuizState('correct')
+                    setQuizError(null)
+                    await setStageUnlocked('stage4', true)
+                    setIsUnlocked(true)
+                  }}
+                  className="bg-rose-500 hover:bg-rose-600 text-white px-6"
+                >
+                  確認答案
+                </Button>
+              )}
               {quizState === 'correct' && (
                 <Button onClick={() => navigate('/journey/stage5')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6">
                   進入下一關

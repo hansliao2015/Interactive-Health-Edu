@@ -318,18 +318,23 @@ export function Stage1() {
             {quizError && <p className="text-sm text-rose-500">{quizError}</p>}
             {quizState === 'correct' && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                解鎖成功！再點一次右側箭頭即可進入下一關。
+                解鎖成功！你可以按「進入下一關」繼續闖關。
               </div>
             )}
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setIsQuizOpen(false)}>
-                先等等
+                關閉
               </Button>
-              <Button onClick={handleSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6">
-                確認答案
-              </Button>
+              {quizState !== 'correct' && (
+                <Button onClick={handleSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6">
+                  確認答案
+                </Button>
+              )}
               {quizState === 'correct' && (
-                <Button onClick={() => navigate('/journey/stage2')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6">
+                <Button
+                  onClick={() => navigate('/journey/stage2')}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-6"
+                >
                   進入下一關
                 </Button>
               )}

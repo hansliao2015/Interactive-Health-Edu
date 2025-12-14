@@ -9,6 +9,7 @@ import { Stage3 } from "./pages/Stage3"
 import { Stage4 } from "./pages/Stage4"
 import { Stage5 } from "./pages/Stage5"
 import { Stage6 } from "./pages/Stage6"
+import { Stage7 } from "./pages/Stage7"
 
 
 export function App() {
@@ -63,6 +64,7 @@ export function App() {
           <Route path="journey/stage4" element={<Stage4 />} />
           <Route path="journey/stage5" element={<Stage5 />} />
           <Route path="journey/stage6" element={<Stage6 />} />
+          <Route path="journey/stage7" element={<Stage7 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

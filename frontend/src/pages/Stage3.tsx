@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 import { getStage3State, setStage3State } from '../lib/storage'
+import { resolveLockedRedirectPath } from '../lib/journeyGuard'
 
 type OptionItem = {
   id: string
@@ -100,6 +101,14 @@ export function Stage3() {
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
+  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
+  const [quizError, setQuizError] = useState<string | null>(null)
+
+  useEffect(() => {
+    resolveLockedRedirectPath('stage3').then((path) => {
+      if (path) navigate(path, { replace: true })
+    })
+  }, [navigate])
 
   useEffect(() => {
     getStageUnlocked('stage3').then((unlocked) => {
@@ -146,10 +155,28 @@ export function Stage3() {
   const handleArrowClick = () => {
     if (!isUnlocked) {
       setQuizState('idle')
+      setSelectedQuizOption(null)
+      setQuizError(null)
       setIsQuizOpen(true)
       return
     }
     navigate('/journey/stage4')
+  }
+
+  const handleQuizSubmit = () => {
+    if (!selectedQuizOption) {
+      setQuizError('請先選擇答案')
+      return
+    }
+    if (selectedQuizOption === 'a') {
+      setQuizState('correct')
+      setQuizError(null)
+      void setStageUnlocked('stage3', true)
+      setIsUnlocked(true)
+      return
+    }
+    setQuizState('wrong')
+    setQuizError('答案不正確，再試一次。')
   }
 
   return (
@@ -312,34 +339,38 @@ export function Stage3() {
                 { id: 'c', label: '血鈣偏低' },
                 { id: 'd', label: '膽固醇（Chol）過高' },
               ].map((opt) => (
-                <button
+                <label
                   key={opt.id}
-                  onClick={() => {
-                    const correct = opt.id === 'a'
-                    if (!correct) {
-                      setQuizState('wrong')
-                      return
-                    }
-                    setQuizState('correct')
-                    void setStageUnlocked('stage3', true)
-                    setIsUnlocked(true)
-                  }}
-                  className="w-full text-left rounded-2xl border border-slate-200 bg-white px-4 py-3 transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-rose-200 cursor-pointer"
+                  className={`flex items-center gap-3 rounded-2xl border p-3 cursor-pointer transition-colors ${
+                    selectedQuizOption === opt.id ? 'border-rose-400 bg-rose-50 text-rose-700' : 'border-slate-200 hover:border-rose-200'
+                  }`}
                 >
+                  <input
+                    type="radio"
+                    name="quiz3"
+                    value={opt.id}
+                    className="sr-only"
+                    checked={selectedQuizOption === opt.id}
+                    onChange={(e) => {
+                      setSelectedQuizOption(e.target.value)
+                      setQuizState('idle')
+                      setQuizError(null)
+                    }}
+                  />
                   <span className="font-semibold text-slate-900">{opt.label}</span>
-                </button>
+                </label>
               ))}
             </div>
 
-            {quizState === 'wrong' && (
+            {quizError && (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                答錯，請再試一次。
+                {quizError}
               </div>
             )}
 
             {quizState === 'correct' && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                解鎖成功！再點一次右側箭頭即可進入下一關。
+                解鎖成功！你可以按「進入下一關」繼續闖關。
               </div>
             )}
 
@@ -347,11 +378,13 @@ export function Stage3() {
               <Button variant="ghost" onClick={() => setIsQuizOpen(false)}>
                 關閉
               </Button>
+              {quizState !== 'correct' && (
+                <Button onClick={handleQuizSubmit} className="bg-rose-500 hover:bg-rose-600 text-white px-6">
+                  確認答案
+                </Button>
+              )}
               {quizState === 'correct' && (
-                <Button
-                  onClick={() => navigate('/journey/stage4')}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-6"
-                >
+                <Button onClick={() => navigate('/journey/stage4')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6">
                   進入下一關
                 </Button>
               )}

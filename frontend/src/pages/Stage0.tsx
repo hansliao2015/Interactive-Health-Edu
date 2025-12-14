@@ -258,13 +258,6 @@ export function Stage0() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-rose-50 via-orange-50/70 to-blue-50 py-20 px-4 text-slate-800">
-      <Button
-        variant="ghost"
-        asChild
-        className="fixed top-20 left-4 z-30 bg-white/70 backdrop-blur border border-white hover:bg-white shadow-sm"
-      >
-        <Link to="/">← 回到上一關</Link>
-      </Button>
       <div className="max-w-6xl mx-auto">
         <section className="text-center space-y-4">
           <p className="text-sm font-semibold tracking-[0.35em] text-rose-500 animate-pulse">
