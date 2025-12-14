@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
+import { getStage3State, setStage3State } from '../lib/storage'
 
 type OptionItem = {
   id: string
@@ -93,8 +94,9 @@ const getSeverity = (score: number, maxScore: number): Severity => {
 
 export function Stage3() {
   const navigate = useNavigate()
-  const [riskFactorIds, setRiskFactorIds] = useState<string[]>([])
-  const [symptomIds, setSymptomIds] = useState<string[]>([])
+  const saved = getStage3State()
+  const [riskFactorIds, setRiskFactorIds] = useState<string[]>(() => saved?.riskFactorIds ?? [])
+  const [symptomIds, setSymptomIds] = useState<string[]>(() => saved?.symptomIds ?? [])
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [quizState, setQuizState] = useState<'idle' | 'wrong' | 'correct'>('idle')
@@ -104,6 +106,10 @@ export function Stage3() {
       setIsUnlocked(unlocked)
     })
   }, [])
+
+  useEffect(() => {
+    setStage3State({ riskFactorIds, symptomIds })
+  }, [riskFactorIds, symptomIds])
 
   const riskScore = useMemo(() => {
     const selected = new Set(riskFactorIds)
