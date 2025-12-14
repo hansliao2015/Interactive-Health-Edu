@@ -2,6 +2,7 @@ import { Link, Route, Routes } from "react-router-dom"
 import { HomePage } from "./pages/HomePage"
 import { AboutPage } from "./pages/AboutPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
+import { Stage0 } from "./pages/Stage0"
 
 
 export function App() {
@@ -34,6 +35,13 @@ export function App() {
                 About
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
               </Link>
+              <Link 
+                to="/journey" 
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors relative group"
+              >
+                腎臟冒險
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
+              </Link>
             </div>
           </div>
         </div>
@@ -42,6 +50,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="journey" element={<Stage0 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
