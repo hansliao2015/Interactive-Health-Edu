@@ -1,17 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
-
-const kidneyFacts = [
-  {
-    label: '位置與外型',
-    value: '人體後腰部各有一顆腎臟，長得像蠶豆，長度約 10-12 公分。',
-  },
-  {
-    label: '組成',
-    value: '每顆腎臟由約 100 萬個腎元組成，像 24 小時輪班的工程隊。',
-  },
-]
 
 const kidneyFunctions = [
   {
@@ -100,55 +89,60 @@ export function Stage1() {
       <div className="max-w-6xl mx-auto space-y-10">
         <header className="space-y-4">
           <p className="text-sm uppercase tracking-[0.4em] text-rose-500">Stage 01 / 認識腎臟</p>
-          <div className="flex flex-col gap-6 lg:flex-row">
-            <div className="bg-white/90 rounded-3xl shadow-lg p-6 border border-rose-100 flex-1">
-              <h1 className="text-3xl font-black text-rose-800 mb-3">人體淨水器：腎臟四大功能</h1>
-              <p className="text-slate-600">
-                腎臟像隱藏在後腰的淨水工程隊，每天為我們處理體液、電解質與荷爾蒙。先透過本關掌握基本結構，
-                下一關才能理解檢驗數值代表什麼。
-              </p>
-              <div className="mt-4 space-y-3">
-                {kidneyFacts.map((fact) => (
-                  <div key={fact.label} className="rounded-2xl bg-rose-50/70 p-4 text-sm text-rose-800 border border-rose-100">
-                    <p className="font-semibold">{fact.label}</p>
-                    <p>{fact.value}</p>
-                  </div>
-                ))}
+          <div className="bg-white/90 rounded-3xl shadow-lg p-6 border border-rose-100 space-y-6">
+            <h1 className="text-3xl font-black text-rose-800">人體淨水器：腎臟四大功能</h1>
+            <p className="text-slate-600">
+              腎臟像隱藏在後腰的淨水工程隊，每天為我們處理體液、電解質與荷爾蒙。透過本關掌握基本結構，
+              下一關才能理解檢驗數值代表什麼。
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl bg-gradient-to-br from-rose-50 to-white border border-rose-100 p-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-rose-700">位置與外型</p>
+                  <span className="text-xs text-rose-400 uppercase tracking-[0.4em]">img1</span>
+                </div>
+                <div className="rounded-2xl border border-rose-100 shadow-sm bg-white/80 p-2">
+                  <img
+                    src="/images/img1.png"
+                    alt="腎臟位置示意"
+                    className="max-h-64 w-full object-contain mx-auto"
+                  />
+                </div>
+                <p className="text-sm text-rose-800 leading-relaxed">
+                  人體後腰部各有一顆腎臟，長得像蠶豆，長度約 10-12 公分。
+                </p>
               </div>
-            </div>
-            <div className="flex-1 rounded-3xl bg-white/80 border border-rose-100 shadow-inner p-6">
-              <div className="h-full flex flex-col justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-rose-500 uppercase tracking-[0.3em]">任務提示</p>
-                  <h2 className="text-2xl font-bold text-slate-900 mt-2">完成磁鐵教具任務</h2>
-                  <p className="text-sm text-slate-600 mt-2">
-                    依序認識四大功能並貼到對應位置，最後透過小測驗檢查理解程度。
-                  </p>
+              <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-white border border-orange-100 p-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-orange-700">組成</p>
+                  <span className="text-xs text-orange-400 uppercase tracking-[0.4em]">img2</span>
                 </div>
-                <div className="mt-6 rounded-2xl bg-gradient-to-r from-amber-100 to-orange-50 p-4 text-sm text-orange-900">
-                  <p className="font-semibold">任務獎勵</p>
-                  <p>解鎖 Stage 02：功能解讀所，學會読み eGFR 與肌酐值。</p>
+                <div className="rounded-2xl border border-orange-100 shadow-sm bg-white/80 p-2">
+                  <img
+                    src="/images/img2.png"
+                    alt="腎臟組成示意"
+                    className="max-h-64 w-full object-contain mx-auto"
+                  />
                 </div>
+                <p className="text-sm text-orange-800 leading-relaxed">
+                  每顆腎臟由約 100 萬個腎元組成，像 24 小時輪班的工程隊。
+                </p>
               </div>
             </div>
           </div>
         </header>
 
         <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100 flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="relative w-72 h-72 flex items-center justify-center">
-              <div className="absolute inset-0 blur-3xl bg-rose-200/60 rounded-full"></div>
-              <img
-                src={kidneyDiagramSrc}
-                alt="腎臟結構示意圖"
-                className="relative w-full h-full object-contain drop-shadow-lg"
-              />
-              <div className="absolute bottom-4 inset-x-8 bg-white/90 rounded-2xl border border-rose-100 shadow p-3 text-center text-sm text-rose-700">
-                <p className="font-semibold flex items-center justify-center gap-2">
-                  <span>{currentFunction.icon}</span>
-                  {currentFunction.title}
+          <div className="flex-1 flex flex-col items-center justify-center order-2 lg:order-1">
+            <div className="relative w-72 h-72">
+              <div className="absolute inset-0 bg-gradient-to-b from-rose-200 to-rose-300 rounded-[40%] shadow-lg"></div>
+              <div className="absolute inset-4 bg-gradient-to-b from-rose-50 to-white rounded-[40%] border-[6px] border-rose-300 shadow-inner"></div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 text-sm text-rose-700">
+                <span className="text-4xl">{currentFunction.icon}</span>
+                <p className="font-semibold mt-2">{currentFunction.title}</p>
+                <p className="mt-2 text-xs leading-relaxed text-rose-600">
+                  {currentFunction.description}
                 </p>
-                <p className="text-xs text-rose-600 mt-1 leading-relaxed">{currentFunction.description}</p>
               </div>
             </div>
             <div className="mt-4 flex gap-2">
@@ -162,7 +156,7 @@ export function Stage1() {
               ))}
             </div>
           </div>
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 order-1 lg:order-2">
             {kidneyFunctions.map((func, idx) => (
               <button
                 key={func.title}
@@ -183,32 +177,6 @@ export function Stage1() {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100 space-y-4">
-          <div className="flex items-center gap-3 text-rose-700 text-sm">
-            <span className="text-3xl">👷</span>
-            <p>每個腎臟約由 100 萬個腎元組成，就像一支輪班不停的工程隊，維持淨化流程。</p>
-          </div>
-          <p className="text-slate-600 text-sm">
-            牢記這句話：腎臟每天至少要同時顧好四件事。答對關卡題目就能解鎖前往下一站。
-          </p>
-        </section>
-
-        <section className="bg-white/80 backdrop-blur rounded-3xl border border-white/70 shadow-inner p-6">
-          <p className="text-sm font-semibold text-rose-500 uppercase tracking-[0.3em] mb-4">下一關預告</p>
-          <div className="grid gap-4 md:grid-cols-3">
-            {previewStages.map((stage) => (
-              <div key={stage.title} className="rounded-2xl border border-rose-100 bg-white p-4 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-800">{stage.title}</h3>
-                <p className="text-sm text-slate-600 mt-2">{stage.tip}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 flex justify-end">
-            <Button asChild variant="ghost" className="text-rose-500 hover:text-rose-700">
-              <Link to="/journey">返回冒險地圖</Link>
-            </Button>
-          </div>
-        </section>
       </div>
 
       {isQuizOpen && (
