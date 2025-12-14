@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
+import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 
 const kidneyFunctions = [
   {
@@ -45,7 +46,7 @@ export function Stage1() {
   const navigate = useNavigate()
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([])
-  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [isUnlocked, setIsUnlocked] = useState(() => getStageUnlocked('stage1'))
   const [quizError, setQuizError] = useState<string | null>(null)
   const [functionIndex, setFunctionIndex] = useState(0)
   const [visitedFunctions, setVisitedFunctions] = useState<boolean[]>(() =>
@@ -61,6 +62,10 @@ export function Stage1() {
     const timeout = setTimeout(() => setIsHighlighting(false), 400)
     return () => clearTimeout(timeout)
   }, [functionIndex])
+
+  useEffect(() => {
+    setStageUnlocked('stage1', isUnlocked)
+  }, [isUnlocked])
 
   const handleArrowClick = () => {
     if (!isUnlocked) {
@@ -107,6 +112,13 @@ export function Stage1() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/journey')}
+        className="fixed top-20 left-4 z-30 bg-white/70 backdrop-blur border border-white hover:bg-white shadow-sm"
+      >
+        ← 回到上一關
+      </Button>
       <button
         aria-label={isUnlocked ? '前往下一關' : '解鎖下一關'}
         onClick={handleArrowClick}

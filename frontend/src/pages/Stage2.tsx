@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
+import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 
 type LabRow = {
   id: string
@@ -215,7 +216,7 @@ type Stage2Case = {
 const stage2Cases: Stage2Case[] = [
   {
     id: 'case-a',
-    title: '案例 A：健康追蹤（低度風險）',
+    title: '案例 A：健康追蹤',
     story: '小豪定期健檢，想知道自己的腎臟風險是否需要擔心。',
     gfrId: 'G1',
     albuminId: 'A1',
@@ -228,7 +229,7 @@ const stage2Cases: Stage2Case[] = [
   },
   {
     id: 'case-b',
-    title: '案例 B：泡泡尿（中度風險）',
+    title: '案例 B：泡泡尿',
     story: '小安最近常看到尿液起泡泡，但身體其他狀況還好。',
     gfrId: 'G1',
     albuminId: 'A2',
@@ -241,7 +242,7 @@ const stage2Cases: Stage2Case[] = [
   },
   {
     id: 'case-c',
-    title: '案例 C：eGFR 下降（中度風險）',
+    title: '案例 C：eGFR 下降',
     story: '阿哲抽血後發現 eGFR 只有 52，但驗尿尿蛋白沒超標。',
     gfrId: 'G3a',
     albuminId: 'A1',
@@ -254,7 +255,7 @@ const stage2Cases: Stage2Case[] = [
   },
   {
     id: 'case-d',
-    title: '案例 D：糖尿病控制不佳（高度風險）',
+    title: '案例 D：糖尿病控制不佳',
     story: '阿慧 HbA1c 偏高，最近也開始出現微量蛋白尿。',
     gfrId: 'G3a',
     albuminId: 'A2',
@@ -267,7 +268,7 @@ const stage2Cases: Stage2Case[] = [
   },
   {
     id: 'case-e',
-    title: '案例 E：高風險需要警覺（極高風險）',
+    title: '案例 E：高風險需要警覺',
     story: '阿德 eGFR 38、尿蛋白 250，最近也很容易疲倦。',
     gfrId: 'G3b',
     albuminId: 'A2',
@@ -289,7 +290,7 @@ export function Stage2() {
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
   const [quizError, setQuizError] = useState<string | null>(null)
-  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [isUnlocked, setIsUnlocked] = useState(() => getStageUnlocked('stage2'))
   const [selectedCaseId, setSelectedCaseId] = useState(stage2Cases[0].id)
   const [focusedLabId, setFocusedLabId] = useState<LabRow['id'] | null>(null)
 
@@ -310,6 +311,10 @@ export function Stage2() {
   const riskLevel = riskMatrix[selectedGfr][selectedAlbumin]
   const riskInfo = riskStyles[riskLevel]
   const selectedCaseRiskInfo = riskStyles[riskMatrix[selectedCase.gfrId][selectedCase.albuminId]]
+
+  useEffect(() => {
+    setStageUnlocked('stage2', isUnlocked)
+  }, [isUnlocked])
 
   const applyCaseToMatrix = () => {
     handleMatrixSelect(selectedCase.gfrId, selectedCase.albuminId)
@@ -346,6 +351,13 @@ export function Stage2() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-16 px-4 text-slate-800 relative overflow-hidden">
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/journey/stage1')}
+        className="fixed top-20 left-4 z-30 bg-white/70 backdrop-blur border border-white hover:bg-white shadow-sm"
+      >
+        ← 回到上一關
+      </Button>
       <button
         aria-label={isUnlocked ? '前往第三關' : '解鎖下一關'}
         onClick={handleArrowClick}
@@ -366,7 +378,7 @@ export function Stage2() {
           <p className="text-sm uppercase tracking-[0.4em] text-rose-500">Stage 02 / 功能檢讀所</p>
           <h1 className="text-3xl font-black text-rose-800">功能檢讀所：把檢查數字變成行動指南</h1>
           <p className="text-slate-600">
-            腎臟病的每一張報告都是暗號。走進檢讀所，透過血檢、尿檢與影像的互動教具，把指標轉換成可理解、可行動的防護盾。
+            腎臟病的每一張報告都是暗號。走進檢讀所，透過血檢、尿檢與影像，把指標轉換成可理解的行動指南。
           </p>
         </header>
 
@@ -570,7 +582,7 @@ export function Stage2() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h2 className="text-xl font-semibold text-slate-900">常見腎臟影像檢查</h2>
-              <p className="text-sm text-slate-500">點擊卡片即可了解檢查用途與優勢。</p>
+              <p className="text-sm text-slate-500">點擊卡片即可查看示意圖。</p>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
