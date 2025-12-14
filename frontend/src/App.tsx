@@ -4,6 +4,7 @@ import { AboutPage } from "./pages/AboutPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
 import { Stage0 } from "./pages/Stage0"
 import { Stage1 } from "./pages/Stage1"
+import { Stage2 } from "./pages/Stage2"
 
 
 export function App() {
@@ -53,6 +54,7 @@ export function App() {
           <Route path="about" element={<AboutPage />} />
           <Route path="journey" element={<Stage0 />} />
           <Route path="journey/stage1" element={<Stage1 />} />
+          <Route path="journey/stage2" element={<Stage2 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
