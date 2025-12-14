@@ -250,29 +250,6 @@ export function HomePage() {
             )}
           </div>
         </div>
-
-        <div className="mt-10 relative overflow-hidden rounded-3xl bg-gradient-to-r from-pink-100 via-rose-100 to-amber-100 p-8 shadow-2xl border border-rose-200/70">
-          <div className="absolute -right-10 -top-10 size-32 bg-white/30 rounded-full blur-3xl"></div>
-          <div className="absolute -left-6 bottom-0 size-24 bg-amber-200/50 rounded-full blur-2xl"></div>
-          <div className="relative">
-            <p className="text-sm font-semibold tracking-widest uppercase text-rose-500 mb-2">腎臟冒險入口</p>
-            <h3 className="text-2xl font-black text-rose-700">與腎同行的冒險之旅</h3>
-            <p className="mt-4 text-rose-800/80">
-              13 個關卡帶你認識腎臟保健、飲食與治療選擇。即使還在註冊，也能提前探索闖關地圖，為健康先備課。
-            </p>
-            <div className="mt-6 flex flex-wrap gap-4">
-              <Button
-                asChild
-                className="bg-white/90 text-rose-600 hover:bg-white shadow-lg px-6 py-5 text-base"
-              >
-                <Link to="/journey">開始闖關</Link>
-              </Button>
-              <div className="px-4 py-3 rounded-2xl bg-rose-200/60 text-rose-700 text-sm font-medium backdrop-blur">
-                π = 3.14159 腎臟照護密碼
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

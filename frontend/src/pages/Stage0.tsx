@@ -268,14 +268,14 @@ export function Stage0() {
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Button
               asChild
-              className="px-8 py-6 text-base bg-gradient-to-r from-rose-500 via-pink-500 to-orange-400 shadow-lg hover:opacity-90"
+              className="px-8 py-6 text-base bg-gradient-to-r from-rose-500 via-pink-500 to-orange-400 shadow-lg transition-transform duration-200 hover:scale-105 hover:shadow-xl"
             >
-              <Link to="/journey#map">立即開始闖關</Link>
+              <Link to="/journey/stage1">立即開始闖關</Link>
             </Button>
             <Button
               variant="outline"
               asChild
-              className="px-8 py-6 text-base bg-white/70 backdrop-blur"
+              className="px-8 py-6 text-base bg-white/70 backdrop-blur transition-transform duration-200 hover:scale-105 hover:shadow-lg"
             >
               <Link to="/">回到首頁</Link>
             </Button>
@@ -290,14 +290,14 @@ export function Stage0() {
               <KidneyMascot />
               <h3 className="text-2xl font-bold text-rose-700">腎臟拍檔</h3>
               <p className="text-sm text-slate-600">
-                兩顆腎像擁有默契的隊友，透過補水、飲食、運動與篩檢的任務，一步步換來穩定的生活。
+                這對腎臟拍檔靠著補水、飲食、運動與定期篩檢的習慣，日日守住身體的平衡。
               </p>
             </div>
 
             {positionedStages.map((stage) => (
               <div
                 key={stage.title}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 ${stage.sizeClass}`}
+                className={`absolute -translate-x-1/2 -translate-y-1/2 transition-transform duration-500 ${stage.sizeClass}`}
                 style={{ top: `${stage.top}%`, left: `${stage.left}%` }}
               >
                 <div
