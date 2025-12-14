@@ -350,7 +350,9 @@ export function Stage2() {
         aria-label={isUnlocked ? '前往第三關' : '解鎖下一關'}
         onClick={handleArrowClick}
         className={`fixed top-1/2 right-4 -translate-y-1/2 z-30 flex flex-col items-center gap-2 rounded-3xl px-4 py-5 shadow-xl transition-all duration-200 ${
-          isUnlocked ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-slate-200 text-slate-500'
+          isUnlocked
+            ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+            : 'bg-slate-200 text-slate-500 hover:bg-slate-300 hover:text-slate-600'
         }`}
       >
         <span className="text-2xl">{isUnlocked ? '🔓' : '🔒'}</span>
@@ -446,7 +448,7 @@ export function Stage2() {
                           <button
                             key={`${gfr.id}-${albumin.id}`}
                             onClick={() => handleMatrixSelect(gfr.id, albumin.id)}
-                            className={`m-1 p-3 rounded-2xl border text-left transition-all ${levelInfo.cell} ${
+                            className={`m-1 p-3 rounded-2xl border text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${levelInfo.cell} ${
                               isActive ? 'ring-2 ring-offset-2 ring-rose-400' : ''
                             }`}
                           >
@@ -494,7 +496,7 @@ export function Stage2() {
                         setSelectedCaseId(item.id)
                         setFocusedLabId(null)
                       }}
-                      className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                      className={`rounded-2xl border px-4 py-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm ${
                         selectedCaseId === item.id
                           ? 'border-rose-300 bg-rose-50 shadow-sm'
                           : 'border-slate-200 bg-white hover:border-rose-200'
@@ -534,7 +536,7 @@ export function Stage2() {
                         <button
                           key={`${selectedCase.id}-${lab.id}`}
                           onClick={() => setFocusedLabId(lab.id)}
-                          className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors hover:opacity-90 ${palette}`}
+                          className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors hover:opacity-90 hover:-translate-y-[1px] ${palette}`}
                         >
                           {label}：{lab.value}
                         </button>
@@ -579,7 +581,9 @@ export function Stage2() {
                   key={exam.id}
                   onClick={() => setActiveExam(exam.id)}
                   className={`rounded-3xl border p-5 text-left transition-all flex flex-col gap-3 hover:-translate-y-1 ${
-                    isActive ? 'border-rose-400 bg-slate-900 text-white shadow-lg' : 'border-slate-200 bg-gradient-to-b from-white to-slate-50'
+                    isActive
+                      ? 'border-rose-400 bg-slate-900 text-white shadow-lg'
+                      : 'border-slate-200 bg-gradient-to-b from-white to-slate-50 hover:border-rose-200 hover:shadow-md'
                   }`}
                 >
                   <div
