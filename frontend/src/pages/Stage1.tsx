@@ -46,7 +46,7 @@ export function Stage1() {
   const navigate = useNavigate()
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([])
-  const [isUnlocked, setIsUnlocked] = useState(() => getStageUnlocked('stage1'))
+  const [isUnlocked, setIsUnlocked] = useState(false)
   const [quizError, setQuizError] = useState<string | null>(null)
   const [functionIndex, setFunctionIndex] = useState(0)
   const [visitedFunctions, setVisitedFunctions] = useState<boolean[]>(() =>
@@ -58,14 +58,16 @@ export function Stage1() {
   const progressPercent = Math.round((discoveredCount / kidneyFunctions.length) * 100)
 
   useEffect(() => {
+    getStageUnlocked('stage1').then((unlocked) => {
+      setIsUnlocked(unlocked)
+    })
+  }, [])
+
+  useEffect(() => {
     setIsHighlighting(true)
     const timeout = setTimeout(() => setIsHighlighting(false), 400)
     return () => clearTimeout(timeout)
   }, [functionIndex])
-
-  useEffect(() => {
-    setStageUnlocked('stage1', isUnlocked)
-  }, [isUnlocked])
 
   const handleArrowClick = () => {
     if (!isUnlocked) {
@@ -88,6 +90,7 @@ export function Stage1() {
       setIsQuizOpen(false)
       setQuizError(null)
       setSelectedAnswers([])
+      setStageUnlocked('stage1', true)
     } else {
       setQuizError('答案不完全正確，再試一次。')
     }

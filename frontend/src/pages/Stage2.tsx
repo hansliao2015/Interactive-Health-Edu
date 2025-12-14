@@ -290,9 +290,15 @@ export function Stage2() {
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null)
   const [quizError, setQuizError] = useState<string | null>(null)
-  const [isUnlocked, setIsUnlocked] = useState(() => getStageUnlocked('stage2'))
+  const [isUnlocked, setIsUnlocked] = useState(false)
   const [selectedCaseId, setSelectedCaseId] = useState(stage2Cases[0].id)
   const [focusedLabId, setFocusedLabId] = useState<LabRow['id'] | null>(null)
+
+  useEffect(() => {
+    getStageUnlocked('stage2').then((unlocked) => {
+      setIsUnlocked(unlocked)
+    })
+  }, [])
 
   const selectedGfrStage = useMemo(() => gfrStages.find((stage) => stage.id === selectedGfr)!, [selectedGfr])
   const selectedAlbuminStage = useMemo(
@@ -311,10 +317,6 @@ export function Stage2() {
   const riskLevel = riskMatrix[selectedGfr][selectedAlbumin]
   const riskInfo = riskStyles[riskLevel]
   const selectedCaseRiskInfo = riskStyles[riskMatrix[selectedCase.gfrId][selectedCase.albuminId]]
-
-  useEffect(() => {
-    setStageUnlocked('stage2', isUnlocked)
-  }, [isUnlocked])
 
   const applyCaseToMatrix = () => {
     handleMatrixSelect(selectedCase.gfrId, selectedCase.albuminId)
@@ -344,6 +346,7 @@ export function Stage2() {
       setIsQuizOpen(false)
       setQuizError(null)
       setSelectedQuizOption(null)
+      setStageUnlocked('stage2', true)
     } else {
       setQuizError('答案不正確，再試一次。')
     }

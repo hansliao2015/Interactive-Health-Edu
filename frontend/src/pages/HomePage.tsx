@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/button'
+import { getStoredUser, setStoredUser } from '../lib/storage'
+import type { User } from '../types'
 
 export function HomePage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -10,16 +12,12 @@ export function HomePage() {
   })
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [user, setUser] = useState<{ username: string } | null>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = getStoredUser()
     if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (error) {
-        localStorage.removeItem('user')
-      }
+      setUser(savedUser)
     }
   }, [])
 
@@ -54,9 +52,8 @@ export function HomePage() {
       if (data.success) {
         setMessage({ type: 'success', text: data.message })
         if (isLogin && data.user) {
-          // 登入成功，設置用戶資訊並保存到 localStorage
           setUser(data.user)
-          localStorage.setItem('user', JSON.stringify(data.user))
+          setStoredUser(data.user)
           setFormData({ username: '', password: '' })
         } else if (!isLogin) {
           // 註冊成功，跳轉到登入介面
@@ -79,7 +76,7 @@ export function HomePage() {
   const handleLogout = () => {
     setUser(null)
     setMessage(null)
-    localStorage.removeItem('user')
+    setStoredUser(null)
   }
 
   if (user) {
