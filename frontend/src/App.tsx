@@ -11,6 +11,11 @@ import { Stage5 } from "./pages/Stage5"
 import { Stage6 } from "./pages/Stage6"
 import { Stage7 } from "./pages/Stage7"
 import { Stage8 } from "./pages/Stage8"
+import { Stage9 } from "./pages/Stage9"
+import { Stage10 } from "./pages/Stage10"
+import { Stage11 } from "./pages/Stage11"
+import { Stage12 } from "./pages/Stage12"
+import { Stage13 } from "./pages/Stage13"
 
 
 export function App() {
@@ -67,6 +72,11 @@ export function App() {
           <Route path="journey/stage6" element={<Stage6 />} />
           <Route path="journey/stage7" element={<Stage7 />} />
           <Route path="journey/stage8" element={<Stage8 />} />
+          <Route path="journey/stage9" element={<Stage9 />} />
+          <Route path="journey/stage10" element={<Stage10 />} />
+          <Route path="journey/stage11" element={<Stage11 />} />
+          <Route path="journey/stage12" element={<Stage12 />} />
+          <Route path="journey/stage13" element={<Stage13 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
