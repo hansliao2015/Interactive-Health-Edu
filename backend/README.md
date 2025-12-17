@@ -28,6 +28,7 @@ define('DB_PASS', '114DWP2025');    // 資料庫密碼
 ```bash
 cd backend
 php -S localhost:8000
+& "C:\xampp\php\php.exe" -S localhost:8000 -t .
 ```
 
 #### 選項 B: 使用 XAMPP/MAMP
