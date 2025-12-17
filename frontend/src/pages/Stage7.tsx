@@ -257,7 +257,7 @@ export function Stage7() {
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.4em] text-slate-500">五大飲食任務</p>
-                  <h2 className="text-xl font-semibold text-slate-900 mt-2">點一個任務，解鎖一個重點</h2>
+                  <h2 className="text-xl font-semibold text-slate-900 mt-2">點一張卡，看一個重點</h2>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-slate-500">探索進度</p>
