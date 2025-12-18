@@ -22,6 +22,7 @@ require_once 'controllers/AuthController.php';
 require_once 'controllers/ProgressController.php';
 require_once 'controllers/AdminController.php';
 require_once 'controllers/QuestionController.php';
+require_once 'controllers/QuizAttemptController.php';
 
 // Get the action from query parameter
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -63,6 +64,23 @@ switch ($action) {
         break;
     case 'delete_question':
         QuestionController::deleteQuestion();
+        break;
+    
+    // Quiz Attempt routes
+    case 'start_quiz_attempt':
+        QuizAttemptController::startAttempt();
+        break;
+    case 'record_answer':
+        QuizAttemptController::recordAnswer();
+        break;
+    case 'complete_quiz_attempt':
+        QuizAttemptController::completeAttempt();
+        break;
+    case 'get_attempt_history':
+        QuizAttemptController::getAttemptHistory();
+        break;
+    case 'get_attempt_details':
+        QuizAttemptController::getAttemptDetails();
         break;
     
     // Invalid action

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
-import { getQuestions } from '../lib/api'
+import { getQuestions, startQuizAttempt, recordAnswer, completeQuizAttempt, getAttemptHistory } from '../lib/api'
 import { getStoredUser } from '../lib/storage'
-import type { Question } from '../types'
+import type { Question, QuizAttempt } from '../types'
 
 type QuizState = 'selecting' | 'answering' | 'result'
 
@@ -20,10 +20,17 @@ export function QuizBankPage() {
   const [userAnswers, setUserAnswers] = useState<number[][]>([])
   const [showFeedback, setShowFeedback] = useState(false)
 
+  // Attempt tracking
+  const [attemptId, setAttemptId] = useState<number | null>(null)
+  const [attemptHistory, setAttemptHistory] = useState<QuizAttempt[]>([])
+
   const currentUser = getStoredUser()
 
   useEffect(() => {
     loadQuestions()
+    if (currentUser) {
+      loadAttemptHistory()
+    }
   }, [])
 
   const loadQuestions = async () => {
@@ -37,8 +44,25 @@ export function QuizBankPage() {
     setIsLoading(false)
   }
 
-  const startQuiz = () => {
+  const loadAttemptHistory = async () => {
+    if (!currentUser) return
+    const result = await getAttemptHistory(currentUser.id, 5)
+    if (result.success && result.data) {
+      setAttemptHistory(result.data)
+    }
+  }
+
+  const startQuiz = async () => {
     if (questions.length === 0) return
+    
+    // Start a new attempt if user is logged in
+    if (currentUser) {
+      const result = await startQuizAttempt(currentUser.id)
+      if (result.success && result.data) {
+        setAttemptId(result.data.attemptId)
+      }
+    }
+    
     setQuizState('answering')
     setCurrentQuestionIndex(0)
     setSelectedAnswers([])
@@ -61,20 +85,44 @@ export function QuizBankPage() {
     }
   }
 
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
     if (selectedAnswers.length === 0) return
+
+    const currentQuestion = questions[currentQuestionIndex]
+    const correct = checkCurrentAnswer()
+    
+    // Record answer to backend if logged in
+    if (attemptId && currentQuestion) {
+      await recordAnswer(attemptId, currentQuestion.id, selectedAnswers, correct)
+    }
 
     const newUserAnswers = [...userAnswers, [...selectedAnswers]]
     setUserAnswers(newUserAnswers)
     setShowFeedback(true)
   }
 
-  const handleNextQuestion = () => {
+  const checkCurrentAnswer = (): boolean => {
+    const question = questions[currentQuestionIndex]
+    if (!question) return false
+    const sortedCorrect = [...question.correctAnswers].sort()
+    const sortedUser = [...selectedAnswers].sort()
+    return (
+      sortedCorrect.length === sortedUser.length &&
+      sortedCorrect.every((val, idx) => val === sortedUser[idx])
+    )
+  }
+
+  const handleNextQuestion = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedAnswers([])
       setShowFeedback(false)
     } else {
+      // Complete the attempt when finished
+      if (attemptId) {
+        await completeQuizAttempt(attemptId)
+        loadAttemptHistory() // Refresh history
+      }
       setQuizState('result')
     }
   }
@@ -106,6 +154,7 @@ export function QuizBankPage() {
     setSelectedAnswers([])
     setUserAnswers([])
     setShowFeedback(false)
+    setAttemptId(null)
   }
 
   if (isLoading) {
@@ -146,27 +195,64 @@ export function QuizBankPage() {
 
         {/* Selecting state - show start button */}
         {quizState === 'selecting' && (
-          <div className="max-w-xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-rose-100 p-8 text-center">
-            <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          <>
+            <div className="max-w-xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-rose-100 p-8 text-center">
+              <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-rose-800 mb-2">準備好挑戰了嗎？</h2>
+              <p className="text-slate-600 mb-2">題庫共有 <span className="font-semibold text-rose-600">{questions.length}</span> 題</p>
+              {questions.length === 0 ? (
+                <p className="text-amber-600 mb-6">目前題庫尚無題目，請等待管理員新增</p>
+              ) : (
+                <p className="text-slate-400 text-sm mb-6">包含單選與多選題型，答錯也沒關係，重點是學習！</p>
+              )}
+              <Button
+                onClick={startQuiz}
+                disabled={questions.length === 0}
+                className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-8 py-3 shadow-lg shadow-rose-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                開始測驗
+              </Button>
             </div>
-            <h2 className="text-2xl font-bold text-rose-800 mb-2">準備好挑戰了嗎？</h2>
-            <p className="text-slate-600 mb-2">題庫共有 <span className="font-semibold text-rose-600">{questions.length}</span> 題</p>
-            {questions.length === 0 ? (
-              <p className="text-amber-600 mb-6">目前題庫尚無題目，請等待管理員新增</p>
-            ) : (
-              <p className="text-slate-400 text-sm mb-6">包含單選與多選題型，答錯也沒關係，重點是學習！</p>
+
+            {/* Attempt History */}
+            {currentUser && attemptHistory.length > 0 && (
+              <div className="max-w-xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-rose-100 p-6">
+                <h3 className="text-lg font-bold text-rose-800 mb-4">歷史記錄</h3>
+                <div className="space-y-3">
+                  {attemptHistory.map((attempt) => (
+                    <div
+                      key={attempt.id}
+                      className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">
+                          {attempt.correctCount} / {attempt.totalQuestions} 題正確
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {new Date(attempt.completedAt || '').toLocaleString('zh-TW')}
+                        </p>
+                      </div>
+                      <div
+                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          attempt.scorePercentage >= 80
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : attempt.scorePercentage >= 60
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {Math.round(attempt.scorePercentage)}%
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
-            <Button
-              onClick={startQuiz}
-              disabled={questions.length === 0}
-              className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-8 py-3 shadow-lg shadow-rose-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              開始測驗
-            </Button>
-          </div>
+          </>
         )}
 
         {/* Answering state - show current question */}

@@ -1,4 +1,4 @@
-import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse, UserWithProgress, Question, QuestionType } from '../types'
+import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse, UserWithProgress, Question, QuestionType, QuizAttempt, QuizAttemptDetails } from '../types'
 
 const API_BASE_URL = 'http://localhost:8000/api.php'
 
@@ -158,5 +158,69 @@ export const deleteQuestion = async (id: number): Promise<ApiResponse<void>> => 
     return await response.json()
   } catch (error) {
     return { success: false, message: `Failed to delete question: ${error}` }
+  }
+}
+
+/* Quiz Attempt API */
+
+export const startQuizAttempt = async (userId: number): Promise<ApiResponse<{ attemptId: number; totalQuestions: number }>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=start_quiz_attempt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to start quiz attempt: ${error}` }
+  }
+}
+
+export const recordAnswer = async (
+  attemptId: number,
+  questionId: number,
+  userAnswers: number[],
+  isCorrect: boolean
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=record_answer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attemptId, questionId, userAnswers, isCorrect }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to record answer: ${error}` }
+  }
+}
+
+export const completeQuizAttempt = async (attemptId: number): Promise<ApiResponse<QuizAttempt>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=complete_quiz_attempt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attemptId }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to complete quiz attempt: ${error}` }
+  }
+}
+
+export const getAttemptHistory = async (userId: number, limit: number = 10): Promise<ApiResponse<QuizAttempt[]>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=get_attempt_history&userId=${userId}&limit=${limit}`)
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to get attempt history: ${error}` }
+  }
+}
+
+export const getAttemptDetails = async (attemptId: number): Promise<ApiResponse<QuizAttemptDetails>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=get_attempt_details&attemptId=${attemptId}`)
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to get attempt details: ${error}` }
   }
 }

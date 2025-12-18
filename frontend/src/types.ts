@@ -62,3 +62,26 @@ export type ApiResponse<T = unknown> = {
   message: string
   data?: T
 }
+
+export type QuizAttempt = {
+  id: number
+  totalQuestions: number
+  correctCount: number
+  scorePercentage: number
+  startedAt: string
+  completedAt: string | null
+}
+
+export type QuizAttemptAnswer = {
+  questionId: number
+  questionText: string
+  options: string[]
+  correctAnswers: number[]
+  userAnswers: number[]
+  isCorrect: boolean
+}
+
+export type QuizAttemptDetails = {
+  attempt: QuizAttempt
+  answers: QuizAttemptAnswer[]
+}
