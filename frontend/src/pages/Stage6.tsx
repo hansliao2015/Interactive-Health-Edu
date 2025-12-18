@@ -121,7 +121,7 @@ export function Stage6() {
   const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(() => saved?.selectedQuizOption ?? null)
   const [quizError, setQuizError] = useState<string | null>(null)
 
-  const [activeTopicId, setActiveTopicId] = useState<TrioTopic['id'] | null>(() => saved?.activeTopicId ?? null)
+  const [activeTopicId, setActiveTopicId] = useState<TrioTopic['id'] | null>(null)
   const [visitedTopicIds, setVisitedTopicIds] = useState<TrioTopic['id'][]>(() =>
     Array.isArray(saved?.visitedTopicIds) ? saved.visitedTopicIds : []
   )
