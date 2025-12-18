@@ -60,7 +60,7 @@ export function AdminPage() {
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'admin') {
-      navigate('/')
+      navigate('/journey')
       return
     }
     loadData()
@@ -204,8 +204,8 @@ export function AdminPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-slate-900">管理員後台</h1>
-          <Button variant="outline" onClick={() => navigate('/')}>
-            返回首頁
+          <Button variant="outline" onClick={() => navigate('/journey')}>
+            返回冒險
           </Button>
         </div>
 

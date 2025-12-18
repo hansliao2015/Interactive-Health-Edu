@@ -29,6 +29,12 @@ function RequireAuth({ user }: { user: User | null }) {
   return <Outlet />
 }
 
+function RequireAdmin({ user }: { user: User | null }) {
+  if (!user) return <Navigate to="/auth" replace />
+  if (user.role !== 'admin') return <Navigate to="/journey" replace />
+  return <Outlet />
+}
+
 export function App() {
   const navigate = useNavigate()
   const [currentUser, setCurrentUser] = useState<User | null>(() => getStoredUser())
@@ -60,7 +66,7 @@ export function App() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6">
               {currentUser && (
                 <div className="flex space-x-8">
                   <Link 
@@ -70,6 +76,15 @@ export function App() {
                     題庫系統
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
                   </Link>
+                  {currentUser.role === 'admin' && (
+                    <Link 
+                      to="/admin" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors relative group"
+                    >
+                      題庫管理
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
+                    </Link>
+                  )}
                   <Link 
                     to="/journey" 
                     className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors relative group"
@@ -112,7 +127,9 @@ export function App() {
 
           <Route element={<RequireAuth user={currentUser} />}>
             <Route path="/" element={<Navigate to="/journey" replace />} />
-            <Route path="admin" element={<AdminPage />} />
+            <Route element={<RequireAdmin user={currentUser} />}>
+              <Route path="admin" element={<AdminPage />} />
+            </Route>
             <Route path="quiz" element={<QuizBankPage />} />
             <Route path="journey" element={<Stage0 onLogout={handleLogout} />} />
             <Route path="journey/stage1" element={<Stage1 />} />
