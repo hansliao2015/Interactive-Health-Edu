@@ -13,9 +13,20 @@ export type StageKey =
   | 'stage12'
   | 'stage13'
 
+export type UserRole = 'user' | 'admin'
+
 export type User = {
   id: number
   username: string
+  role: UserRole
+}
+
+export type UserWithProgress = {
+  id: number
+  username: string
+  role: UserRole
+  createdAt: string
+  progress: AllProgressMap
 }
 
 export type StageProgress = {

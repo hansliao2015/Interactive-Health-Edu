@@ -1,4 +1,4 @@
-import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse } from '../types'
+import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse, UserWithProgress } from '../types'
 
 const API_BASE_URL = 'http://localhost:8000/api.php'
 
@@ -84,5 +84,16 @@ export const getAllProgress = async (userId: number): Promise<ApiResponse<AllPro
     return await response.json()
   } catch (error) {
     return { success: false, message: `Failed to get all progress: ${error}` }
+  }
+}
+
+/* Admin API */
+
+export const adminGetAllUsersProgress = async (): Promise<ApiResponse<UserWithProgress[]>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=admin_get_all_users_progress`)
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to get all users progress: ${error}` }
   }
 }

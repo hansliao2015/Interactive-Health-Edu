@@ -2,6 +2,7 @@ import { Link, Route, Routes } from "react-router-dom"
 import { HomePage } from "./pages/HomePage"
 import { AboutPage } from "./pages/AboutPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
+import { AdminPage } from "./pages/AdminPage"
 import { Stage0 } from "./pages/Stage0"
 import { Stage1 } from "./pages/Stage1"
 import { Stage2 } from "./pages/Stage2"
@@ -63,6 +64,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="admin" element={<AdminPage />} />
           <Route path="journey" element={<Stage0 />} />
           <Route path="journey/stage1" element={<Stage1 />} />
           <Route path="journey/stage2" element={<Stage2 />} />

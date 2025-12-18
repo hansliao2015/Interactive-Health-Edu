@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 require_once 'config.php';
 require_once 'controllers/AuthController.php';
 require_once 'controllers/ProgressController.php';
+require_once 'controllers/AdminController.php';
 
 // Get the action from query parameter
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -44,11 +45,16 @@ switch ($action) {
         ProgressController::getAllProgress();
         break;
     
+    // Admin routes
+    case 'admin_get_all_users_progress':
+        AdminController::getAllUsersProgress();
+        break;
+    
     // Invalid action
     default:
         jsonResponse([
             'success' => false,
-            'message' => 'Invalid action. Available actions: register, login, save_progress, get_progress, get_all_progress'
+            'message' => 'Invalid action'
         ], 400);
 }
 ?>

@@ -90,7 +90,7 @@ class AuthController {
             
             // Find user by username
             $stmt = $pdo->prepare("
-                SELECT id, username, password 
+                SELECT id, username, password, role 
                 FROM users 
                 WHERE username = :username
             ");
@@ -119,7 +119,8 @@ class AuthController {
                 'message' => 'Login successful',
                 'user' => [
                     'id' => $user['id'],
-                    'username' => $user['username']
+                    'username' => $user['username'],
+                    'role' => $user['role'] ?? 'user'
                 ],
                 'sessionId' => session_id()
             ], 200);
