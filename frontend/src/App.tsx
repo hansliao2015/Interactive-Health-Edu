@@ -3,6 +3,7 @@ import { HomePage } from "./pages/HomePage"
 import { AboutPage } from "./pages/AboutPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
 import { AdminPage } from "./pages/AdminPage"
+import { QuizBankPage } from "./pages/QuizBankPage"
 import { Stage0 } from "./pages/Stage0"
 import { Stage1 } from "./pages/Stage1"
 import { Stage2 } from "./pages/Stage2"
@@ -50,6 +51,13 @@ export function App() {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
               </Link>
               <Link 
+                to="/quiz" 
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors relative group"
+              >
+                題庫系統
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
+              </Link>
+              <Link 
                 to="/journey" 
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors relative group"
               >
@@ -65,6 +73,7 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="admin" element={<AdminPage />} />
+          <Route path="quiz" element={<QuizBankPage />} />
           <Route path="journey" element={<Stage0 />} />
           <Route path="journey/stage1" element={<Stage1 />} />
           <Route path="journey/stage2" element={<Stage2 />} />
