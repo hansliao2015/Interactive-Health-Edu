@@ -1,5 +1,8 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
+import { getStageUnlocked } from '../lib/journeyProgress'
+import type { StageKey } from '../types'
+import { useEffect, useMemo, useState } from 'react'
 
 type JourneyStage = {
   title: string
@@ -21,6 +24,7 @@ type PositionedStage = JourneyStage & {
   delay: number
   sizeClass: string
   stageNumber?: number
+  stageKey?: StageKey
 }
 
 const journeyStages: JourneyStage[] = [
@@ -139,6 +143,22 @@ const journeyStages: JourneyStage[] = [
   },
 ]
 
+const stageKeys: StageKey[] = [
+  'stage1',
+  'stage2',
+  'stage3',
+  'stage4',
+  'stage5',
+  'stage6',
+  'stage7',
+  'stage8',
+  'stage9',
+  'stage10',
+  'stage11',
+  'stage12',
+  'stage13',
+]
+
 const piCareTips = [
   {
     digit: '3',
@@ -230,6 +250,9 @@ function KidneyMascot() {
 }
 
 export function Stage0() {
+  const navigate = useNavigate()
+  const [unlockedMap, setUnlockedMap] = useState<Record<StageKey, boolean>>({})
+
   const totalStages = journeyStages.length
   const angleStep = 360 / totalStages
   const baseAngle = -90
@@ -244,6 +267,7 @@ export function Stage0() {
     const top = 50 + radius * Math.sin(radians)
     const countsAsStage = stage.countsAsStage !== false
     const stageNumber = countsAsStage ? ++stageCounter : undefined
+    const stageKey = stageNumber ? (`stage${stageNumber}` as StageKey) : undefined
 
     return {
       ...stage,
@@ -253,8 +277,29 @@ export function Stage0() {
       delay: index * 0.15,
       sizeClass: stage.sizeClass ?? 'w-32 sm:w-36 lg:w-40',
       stageNumber,
+      stageKey,
     }
   })
+
+  const sortedStageKeys = useMemo(() => stageKeys, [])
+
+  useEffect(() => {
+    let mounted = true
+    Promise.all(sortedStageKeys.map(async (key) => {
+      const unlocked = await getStageUnlocked(key)
+      return [key, unlocked] as const
+    })).then((entries) => {
+      if (!mounted) return
+      const map: Record<StageKey, boolean> = {}
+      entries.forEach(([key, unlocked]) => {
+        map[key] = unlocked
+      })
+      setUnlockedMap(map)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [sortedStageKeys])
 
   return (
     <div className="min-h-screen bg-linear-to-b from-rose-50 via-orange-50/70 to-blue-50 py-20 px-4 text-slate-800">
@@ -300,23 +345,61 @@ export function Stage0() {
                 className={`absolute -translate-x-1/2 -translate-y-1/2 transition-transform duration-500 ${stage.sizeClass}`}
                 style={{ top: `${stage.top}%`, left: `${stage.left}%` }}
               >
-                <div
-                  className={`bg-linear-to-br ${stage.gradient} ${stage.border} border-2 rounded-2xl p-3 shadow-lg backdrop-blur-sm transition-transform duration-500 hover:-translate-y-1 ${
-                    stage.ring === 'inner' ? 'animate-float-slow' : 'animate-float-slower'
-                  }`}
-                  style={{ animationDelay: `${stage.delay}s` }}
-                >
-                  <div className="flex items-center justify-between text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 mb-2">
-                    <span>
-                      {stage.stageNumber
-                        ? `Stage ${String(stage.stageNumber).padStart(2, '0')}`
-                        : 'Stage 0'}
-                    </span>
-                    <span className="text-lg">{stage.icon}</span>
-                  </div>
-                  <h3 className="text-base font-semibold text-slate-800">{stage.title}</h3>
-                  <p className="text-xs text-slate-600 mt-1 leading-snug">{stage.description}</p>
-                </div>
+                {(() => {
+                  const unlocked = stage.stageKey ? unlockedMap[stage.stageKey] === true : false
+                  const canEnter = stage.stageKey && unlocked
+                  const card = (
+                    <div
+                      className={`bg-linear-to-br ${stage.gradient} ${stage.border} border-2 rounded-2xl p-3 shadow-lg backdrop-blur-sm transition-transform duration-500 ${
+                        stage.ring === 'inner' ? 'animate-float-slow' : 'animate-float-slower'
+                      } ${canEnter ? 'hover:-translate-y-1 cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
+                      style={{ animationDelay: `${stage.delay}s` }}
+                    >
+                      <div className="flex items-center justify-between text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 mb-2">
+                        <span>
+                          {stage.stageNumber
+                            ? `Stage ${String(stage.stageNumber).padStart(2, '0')}`
+                            : 'Stage 0'}
+                        </span>
+                        <span className="text-lg">{stage.icon}</span>
+                      </div>
+                      <h3 className="text-base font-semibold text-slate-800">{stage.title}</h3>
+                      <p className="text-xs text-slate-600 mt-1 leading-snug line-clamp-3">{stage.description}</p>
+                      {stage.stageKey && (
+                        <div className="mt-3 flex items-center justify-between">
+                          <span
+                            className={`text-[0.7rem] px-2 py-1 rounded-full border ${
+                              unlocked
+                                ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                                : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}
+                          >
+                            {unlocked ? '已通關，可進入' : '未通關'}
+                          </span>
+                          {unlocked && (
+                            <span className="text-sm" aria-hidden="true">
+                              →
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+
+                  if (canEnter) {
+                    return (
+                      <button
+                        type="button"
+                        className="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-rose-300 rounded-2xl"
+                        onClick={() => navigate(`/journey/${stage.stageKey}`)}
+                      >
+                        {card}
+                      </button>
+                    )
+                  }
+
+                  return card
+                })()}
               </div>
             ))}
           </div>

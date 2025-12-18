@@ -121,10 +121,6 @@ export function Stage12() {
       navigate(nextPath)
       return
     }
-    if (!visitedAll) {
-      setGateNotice('請先點完三大補血方案，了解內容後再解鎖測驗。')
-      return
-    }
     setGateNotice(null)
     setQuizState('idle')
     setQuizError(null)
@@ -250,11 +246,6 @@ export function Stage12() {
                   <p className="text-sm text-slate-700 leading-relaxed">
                     腎臟負責製造紅血球生成素，當腎功能下降，EPO 減少、造血材料不足，就像工廠缺料缺令單，血色素自然下滑。補血針、補鐵與必要時的輸血，就是重新補齊工廠的「令牌、原料、快遞」。
                   </p>
-                  <div className="flex items-center justify-between text-xs text-slate-600">
-                    <span>令牌：EPO 補血針</span>
-                    <span>原料：補鐵</span>
-                    <span>快遞：評估輸血</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -262,12 +253,39 @@ export function Stage12() {
 
           <div className="space-y-4">
             <div className="rounded-3xl border bg-white/90 shadow-lg p-6 space-y-5">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl bg-rose-100 flex items-center justify-center text-2xl">{activeTreatment.icon}</div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-rose-500">{visitedTreatments.includes(activeTreatment.id) ? '已閱讀' : '待探索'}</p>
-                  <h3 className="text-2xl font-bold text-slate-900">{activeTreatment.title}</h3>
-                  <p className="text-sm text-slate-600">{activeTreatment.tagline}</p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-rose-100 flex items-center justify-center text-2xl">{activeTreatment.icon}</div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-rose-500">{visitedTreatments.includes(activeTreatment.id) ? '已閱讀' : '待探索'}</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{activeTreatment.title}</h3>
+                    <p className="text-sm text-slate-600">{activeTreatment.tagline}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {treatments.map((treatment, idx) => {
+                    const isActive = activeTreatmentId === treatment.id
+                    const isVisited = visitedTreatments.includes(treatment.id)
+                    return (
+                      <button
+                        key={treatment.id}
+                        type="button"
+                        onClick={() => handleTreatmentSelect(treatment.id)}
+                        className={`w-9 h-9 rounded-full border text-xs font-bold flex items-center justify-center transition-all ${
+                          isActive
+                            ? 'bg-rose-500 text-white border-rose-500 shadow-md scale-105'
+                            : isVisited
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm'
+                              : 'bg-white text-slate-600 border-slate-200 hover:border-rose-200'
+                        }`}
+                        aria-label={treatment.title}
+                        title={treatment.title}
+                      >
+                        {idx + 1}
+                        {isVisited && !isActive && <span className="sr-only">（已瀏覽）</span>}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -289,12 +307,12 @@ export function Stage12() {
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-2xl bg-emerald-100 flex items-center justify-center text-lg">📒</div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">收集貼紙</p>
-                  <h3 className="text-lg font-bold text-slate-900">已探索的補血方案</h3>
+                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">已瀏覽方案</p>
+                  <h3 className="text-lg font-bold text-slate-900">目前掌握</h3>
                 </div>
               </div>
               {visitedTreatments.length === 0 ? (
-                <p className="text-sm text-slate-600">尚未收集任何貼紙，點擊左側卡片開始探索。</p>
+                <p className="text-sm text-slate-600">尚未瀏覽任何方案，點擊上方卡片開始探索。</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {treatments
@@ -313,54 +331,6 @@ export function Stage12() {
             </div>
           </div>
         </section>
-
-        <section className="bg-white rounded-3xl shadow-lg p-8 border border-rose-100 space-y-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-rose-500">補血三招</p>
-              <h2 className="text-xl font-black text-slate-900">點卡片收集守護貼紙</h2>
-              <p className="text-sm text-slate-600">選擇每個方案查看細節，完成三張即可解鎖測驗。</p>
-            </div>
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-2 text-sm text-emerald-800">需要解鎖：{visitedTreatments.length}/3</div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {treatments.map((treatment) => {
-              const isActive = activeTreatmentId === treatment.id
-              const isVisited = visitedTreatments.includes(treatment.id)
-              return (
-                <button
-                  key={treatment.id}
-                  onClick={() => handleTreatmentSelect(treatment.id)}
-                  className={`text-left rounded-3xl border p-5 shadow-sm transition-all duration-200 cursor-pointer hover:-translate-y-1 ${
-                    isActive ? 'ring-2 ring-rose-300 shadow-md' : ''
-                  } ${treatment.border} bg-gradient-to-br ${treatment.gradient}`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{treatment.icon}</span>
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-900">{treatment.title}</h3>
-                        <p className="text-xs text-slate-600">{treatment.tagline}</p>
-                      </div>
-                    </div>
-                    {isVisited && (
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">已收集</span>
-                    )}
-                  </div>
-                  <p className="mt-3 text-sm text-slate-700 leading-relaxed line-clamp-3">{treatment.detail}</p>
-                </button>
-              )
-            })}
-          </div>
-        </section>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-slate-600">貼紙全數收集後才能解鎖下一關，完成後再來測驗！</div>
-          <Button onClick={handleArrowClick} className="bg-rose-500 hover:bg-rose-600 text-white px-6 cursor-pointer">
-            前往解鎖測驗
-          </Button>
-        </div>
       </div>
 
       {isQuizOpen && (
