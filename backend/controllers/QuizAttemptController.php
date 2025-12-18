@@ -33,7 +33,7 @@ class QuizAttemptController {
         try {
             $pdo = getDBConnection();
             
-            // Count total questions available
+            // Check if questions exist
             $stmt = $pdo->query("SELECT COUNT(*) as total FROM questions");
             $totalQuestions = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
             
@@ -42,20 +42,19 @@ class QuizAttemptController {
                 return;
             }
 
-            // Create new attempt
+            // Create new attempt (total_questions will be updated when completed based on actual answered count)
             $stmt = $pdo->prepare("
                 INSERT INTO quiz_attempts (user_id, total_questions, correct_count, score_percentage, started_at)
-                VALUES (?, ?, 0, 0.00, NOW())
+                VALUES (?, 0, 0, 0.00, NOW())
             ");
-            $stmt->execute([$userId, $totalQuestions]);
+            $stmt->execute([$userId]);
             $attemptId = $pdo->lastInsertId();
 
             jsonResponse([
                 'success' => true,
                 'message' => 'Quiz attempt started',
                 'data' => [
-                    'attemptId' => intval($attemptId),
-                    'totalQuestions' => intval($totalQuestions)
+                    'attemptId' => intval($attemptId)
                 ]
             ]);
         } catch (PDOException $e) {
@@ -139,14 +138,29 @@ class QuizAttemptController {
         try {
             $pdo = getDBConnection();
             
-            // Calculate final score percentage
+            // Count actual answered questions for this attempt
+            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM quiz_attempt_answers WHERE attempt_id = ?");
+            $stmt->execute([$attemptId]);
+            $actualTotal = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Count correct answers
+            $stmt = $pdo->prepare("SELECT COUNT(*) as correct FROM quiz_attempt_answers WHERE attempt_id = ? AND is_correct = 1");
+            $stmt->execute([$attemptId]);
+            $correctCount = $stmt->fetch(PDO::FETCH_ASSOC)['correct'];
+            
+            // Calculate score percentage based on actual answered questions
+            $scorePercentage = $actualTotal > 0 ? ($correctCount * 100.0 / $actualTotal) : 0;
+            
+            // Update attempt with actual totals
             $stmt = $pdo->prepare("
                 UPDATE quiz_attempts 
-                SET score_percentage = (correct_count * 100.0 / total_questions),
+                SET total_questions = ?,
+                    correct_count = ?,
+                    score_percentage = ?,
                     completed_at = NOW()
                 WHERE id = ?
             ");
-            $stmt->execute([$attemptId]);
+            $stmt->execute([$actualTotal, $correctCount, $scorePercentage, $attemptId]);
 
             // Get the completed attempt
             $stmt = $pdo->prepare("SELECT * FROM quiz_attempts WHERE id = ?");

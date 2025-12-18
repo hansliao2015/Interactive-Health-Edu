@@ -7,14 +7,25 @@ import type { Question, QuizAttempt } from '../types'
 
 type QuizState = 'selecting' | 'answering' | 'result'
 
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 export function QuizBankPage() {
   const navigate = useNavigate()
-  const [questions, setQuestions] = useState<Question[]>([])
+  const [allQuestions, setAllQuestions] = useState<Question[]>([])
+  const [quizQuestions, setQuizQuestions] = useState<Question[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   // Quiz state
   const [quizState, setQuizState] = useState<QuizState>('selecting')
+  const [selectedQuestionCount, setSelectedQuestionCount] = useState<number | 'all'>(5)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([])
   const [userAnswers, setUserAnswers] = useState<number[][]>([])
@@ -37,7 +48,7 @@ export function QuizBankPage() {
     setIsLoading(true)
     const result = await getQuestions()
     if (result.success && result.data) {
-      setQuestions(result.data)
+      setAllQuestions(result.data)
     } else {
       setError('載入題目失敗')
     }
@@ -53,7 +64,13 @@ export function QuizBankPage() {
   }
 
   const startQuiz = async () => {
-    if (questions.length === 0) return
+    if (allQuestions.length === 0) return
+    
+    // Select questions based on user choice
+    const count = selectedQuestionCount === 'all' ? allQuestions.length : selectedQuestionCount
+    const shuffled = shuffleArray(allQuestions)
+    const selected = shuffled.slice(0, Math.min(count, allQuestions.length))
+    setQuizQuestions(selected)
     
     // Start a new attempt if user is logged in
     if (currentUser) {
@@ -71,7 +88,7 @@ export function QuizBankPage() {
   }
 
   const handleAnswerSelect = (index: number) => {
-    const currentQuestion = questions[currentQuestionIndex]
+    const currentQuestion = quizQuestions[currentQuestionIndex]
     if (!currentQuestion) return
 
     if (currentQuestion.questionType === 'single') {
@@ -88,7 +105,7 @@ export function QuizBankPage() {
   const handleSubmitAnswer = async () => {
     if (selectedAnswers.length === 0) return
 
-    const currentQuestion = questions[currentQuestionIndex]
+    const currentQuestion = quizQuestions[currentQuestionIndex]
     const correct = checkCurrentAnswer()
     
     // Record answer to backend if logged in
@@ -102,7 +119,7 @@ export function QuizBankPage() {
   }
 
   const checkCurrentAnswer = (): boolean => {
-    const question = questions[currentQuestionIndex]
+    const question = quizQuestions[currentQuestionIndex]
     if (!question) return false
     const sortedCorrect = [...question.correctAnswers].sort()
     const sortedUser = [...selectedAnswers].sort()
@@ -113,7 +130,7 @@ export function QuizBankPage() {
   }
 
   const handleNextQuestion = async () => {
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < quizQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedAnswers([])
       setShowFeedback(false)
@@ -128,7 +145,7 @@ export function QuizBankPage() {
   }
 
   const isCorrect = (questionIndex: number): boolean => {
-    const question = questions[questionIndex]
+    const question = quizQuestions[questionIndex]
     const userAnswer = userAnswers[questionIndex]
     if (!question || !userAnswer) return false
 
@@ -142,10 +159,10 @@ export function QuizBankPage() {
 
   const calculateScore = (): { correct: number; total: number } => {
     let correct = 0
-    for (let i = 0; i < questions.length; i++) {
+    for (let i = 0; i < quizQuestions.length; i++) {
       if (isCorrect(i)) correct++
     }
-    return { correct, total: questions.length }
+    return { correct, total: quizQuestions.length }
   }
 
   const resetQuiz = () => {
@@ -155,6 +172,7 @@ export function QuizBankPage() {
     setUserAnswers([])
     setShowFeedback(false)
     setAttemptId(null)
+    setQuizQuestions([])
   }
 
   if (isLoading) {
@@ -178,14 +196,6 @@ export function QuizBankPage() {
           <p className="text-slate-600">測驗由管理員建立的題目，檢視你對健康教育的理解程度。</p>
         </header>
 
-        {/* User info */}
-        {currentUser && (
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-4 py-2 bg-white/80 rounded-full text-sm text-slate-600 shadow-sm border border-rose-100">
-              {currentUser.username}
-            </span>
-          </div>
-        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-600">
@@ -203,15 +213,47 @@ export function QuizBankPage() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-rose-800 mb-2">準備好挑戰了嗎？</h2>
-              <p className="text-slate-600 mb-2">題庫共有 <span className="font-semibold text-rose-600">{questions.length}</span> 題</p>
-              {questions.length === 0 ? (
+              <p className="text-slate-600 mb-4">題庫共有 <span className="font-semibold text-rose-600">{allQuestions.length}</span> 題</p>
+              
+              {allQuestions.length === 0 ? (
                 <p className="text-amber-600 mb-6">目前題庫尚無題目，請等待管理員新增</p>
               ) : (
-                <p className="text-slate-400 text-sm mb-6">包含單選與多選題型，答錯也沒關係，重點是學習！</p>
+                <>
+                  {/* Question count selector */}
+                  <div className="mb-6">
+                    <p className="text-sm text-slate-500 mb-3">選擇作答題數</p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {[5, 10, 15, 'all'].map((count) => {
+                        const isDisabled = typeof count === 'number' && count > allQuestions.length
+                        const displayText = count === 'all' ? `全部 (${allQuestions.length})` : `${count} 題`
+                        const isSelected = selectedQuestionCount === count
+                        
+                        return (
+                          <button
+                            key={count}
+                            onClick={() => !isDisabled && setSelectedQuestionCount(count as number | 'all')}
+                            disabled={isDisabled}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                              isSelected
+                                ? 'bg-rose-500 text-white shadow-md'
+                                : isDisabled
+                                ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                : 'bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-600'
+                            }`}
+                          >
+                            {displayText}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  <p className="text-slate-400 text-sm mb-6">包含單選與多選題型，題目將隨機抽選</p>
+                </>
               )}
+              
               <Button
                 onClick={startQuiz}
-                disabled={questions.length === 0}
+                disabled={allQuestions.length === 0}
                 className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-8 py-3 shadow-lg shadow-rose-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 開始測驗
@@ -256,13 +298,13 @@ export function QuizBankPage() {
         )}
 
         {/* Answering state - show current question */}
-        {quizState === 'answering' && questions[currentQuestionIndex] && (
+        {quizState === 'answering' && quizQuestions[currentQuestionIndex] && (
           <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-rose-100 overflow-hidden">
             {/* Progress bar */}
             <div className="h-2 bg-rose-100">
               <div
                 className="h-full bg-linear-to-r from-rose-400 to-rose-500 transition-all duration-300"
-                style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+                style={{ width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%` }}
               ></div>
             </div>
 
@@ -270,23 +312,23 @@ export function QuizBankPage() {
               {/* Question info */}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm font-medium text-rose-500">
-                  第 {currentQuestionIndex + 1} / {questions.length} 題
+                  第 {currentQuestionIndex + 1} / {quizQuestions.length} 題
                 </span>
                 <span className="px-3 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
-                  {questions[currentQuestionIndex].questionType === 'single' ? '單選題' : '多選題'}
+                  {quizQuestions[currentQuestionIndex].questionType === 'single' ? '單選題' : '多選題'}
                 </span>
               </div>
 
               {/* Question text */}
               <h3 className="text-xl font-bold text-rose-800 mb-6">
-                {questions[currentQuestionIndex].questionText}
+                {quizQuestions[currentQuestionIndex].questionText}
               </h3>
 
               {/* Options */}
               <div className="space-y-3 mb-6">
-                {questions[currentQuestionIndex].options.map((option, index) => {
+                {quizQuestions[currentQuestionIndex].options.map((option, index) => {
                   const isSelected = selectedAnswers.includes(index)
-                  const isCorrectAnswer = questions[currentQuestionIndex].correctAnswers.includes(index)
+                  const isCorrectAnswer = quizQuestions[currentQuestionIndex].correctAnswers.includes(index)
                   
                   let optionClass = 'border-slate-200 hover:border-rose-200'
                   if (showFeedback) {
@@ -299,7 +341,7 @@ export function QuizBankPage() {
                     optionClass = 'border-rose-400 bg-rose-50 text-rose-700'
                   }
 
-                  const isSingleChoice = questions[currentQuestionIndex].questionType === 'single'
+                  const isSingleChoice = quizQuestions[currentQuestionIndex].questionType === 'single'
 
                   return (
                     <label
@@ -358,7 +400,7 @@ export function QuizBankPage() {
                     onClick={handleNextQuestion}
                     className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-6 py-3 shadow-lg shadow-rose-200 transition-all duration-200"
                   >
-                    {currentQuestionIndex < questions.length - 1 ? '下一題' : '查看結果'}
+                    {currentQuestionIndex < quizQuestions.length - 1 ? '下一題' : '查看結果'}
                   </Button>
                 )}
               </div>
@@ -410,7 +452,7 @@ export function QuizBankPage() {
             <div className="mt-8 mb-6">
               <h3 className="text-lg font-bold text-rose-800 mb-4">答題回顧</h3>
               <div className="space-y-3 text-left">
-                {questions.map((q, idx) => (
+                {quizQuestions.map((q, idx) => (
                   <div
                     key={q.id}
                     className={`p-4 rounded-2xl border ${
