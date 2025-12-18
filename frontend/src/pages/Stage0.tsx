@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
-import { getStageUnlocked } from '../lib/journeyProgress'
+import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 import type { StageKey } from '../types'
 import { useEffect, useMemo, useState } from 'react'
 import { clearStageState } from '../lib/stageState'
@@ -285,10 +285,12 @@ export function Stage0() {
   const sortedStageKeys = useMemo(() => stageKeys, [])
   const allCompleted = useMemo(() => sortedStageKeys.every((key) => unlockedMap[key]), [sortedStageKeys, unlockedMap])
 
-  const clearAdventureProgress = () => {
-    if (typeof window === 'undefined') return
+  const clearAdventureProgress = async () => {
     stageKeys.forEach((key) => clearStageState(key))
-    window.localStorage.removeItem('journeyProgress.v1')
+    await Promise.all(stageKeys.map((key) => setStageUnlocked(key, false)))
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('journeyProgress.v1')
+    }
     setUnlockedMap({})
   }
 
