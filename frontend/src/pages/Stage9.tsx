@@ -85,8 +85,6 @@ const habitCards: HabitCard[] = [
   },
 ]
 
-const handwashWords = ['內', '外', '夾', '弓', '大', '立', '腕']
-
 type Stage9State = {
   checkedHabits: string[]
   activeHabitId: string

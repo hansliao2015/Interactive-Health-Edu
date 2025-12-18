@@ -4,6 +4,7 @@ import { getStageUnlocked, setStageUnlocked } from '../lib/journeyProgress'
 import type { StageKey } from '../types'
 import { useEffect, useMemo, useState } from 'react'
 import { clearStageState } from '../lib/stageState'
+import { setStoredUser } from '../lib/storage'
 
 type JourneyStage = {
   title: string
@@ -250,7 +251,11 @@ function KidneyMascot() {
   )
 }
 
-export function Stage0() {
+type Stage0Props = {
+  onLogout?: () => void
+}
+
+export function Stage0({ onLogout }: Stage0Props) {
   const navigate = useNavigate()
   const [unlockedMap, setUnlockedMap] = useState<Partial<Record<StageKey, boolean>>>({})
 
@@ -294,6 +299,15 @@ export function Stage0() {
     setUnlockedMap({})
   }
 
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout()
+    } else {
+      setStoredUser(null)
+      navigate('/auth')
+    }
+  }
+
   useEffect(() => {
     let mounted = true
     Promise.all(sortedStageKeys.map(async (key) => {
@@ -330,10 +344,10 @@ export function Stage0() {
             </Button>
             <Button
               variant="outline"
-              asChild
               className="px-8 py-6 text-base bg-white/70 backdrop-blur transition-transform duration-200 hover:scale-105 hover:shadow-lg"
+              onClick={handleLogout}
             >
-              <Link to="/">回到首頁</Link>
+              登出
             </Button>
           </div>
           {allCompleted && (

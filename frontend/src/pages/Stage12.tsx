@@ -85,7 +85,6 @@ export function Stage12() {
   const [quizError, setQuizError] = useState<string | null>(null)
   const [gateNotice, setGateNotice] = useState<string | null>(null)
 
-  const visitedAll = visitedTreatments.length === treatments.length
   const progressPercent = Math.round((visitedTreatments.length / treatments.length) * 100)
   const activeTreatment = useMemo(() => treatments.find((t) => t.id === activeTreatmentId) ?? treatments[0], [activeTreatmentId])
 
