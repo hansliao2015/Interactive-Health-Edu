@@ -3,6 +3,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Custom utility for page content area below fixed navbar */
+@utility min-h-page {
+  min-height: calc(100vh - 4rem);
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

@@ -66,6 +66,18 @@ export function AdminPage() {
     loadData()
   }, [navigate])
 
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (isFormOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isFormOpen])
+
   const loadData = async () => {
     setIsLoading(true)
     const [usersResult, questionsResult] = await Promise.all([
@@ -173,7 +185,7 @@ export function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-page bg-slate-50 flex items-center justify-center">
         <div className="text-slate-600">載入中...</div>
       </div>
     )
@@ -181,14 +193,14 @@ export function AdminPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-page bg-slate-50 flex items-center justify-center">
         <div className="text-red-600">{error}</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4">
+    <div className="min-h-page bg-slate-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-slate-900">管理員後台</h1>
@@ -303,144 +315,6 @@ export function AdminPage() {
               </Button>
             </div>
 
-            {isFormOpen && (
-              <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                  <div className="px-6 py-5 border-b border-rose-100 bg-rose-50/50 rounded-t-3xl">
-                    <p className="text-xs uppercase tracking-[0.2em] text-rose-400 mb-1">Question Form</p>
-                    <h3 className="text-lg font-semibold text-slate-800">新增題目</h3>
-                  </div>
-                  <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">關卡</label>
-                      <select
-                        value={formStage}
-                        onChange={(e) => setFormStage(e.target.value)}
-                        className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-rose-300 bg-white/80 transition-all"
-                      >
-                        {STAGES.map((stage) => (
-                          <option key={stage} value={stage}>
-                            {STAGE_LABELS[stage]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">題型</label>
-                      <div className="flex gap-4">
-                        <label className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-xl border border-rose-200 hover:bg-rose-50 transition-colors">
-                          <input
-                            type="radio"
-                            name="questionType"
-                            checked={formType === 'single'}
-                            onChange={() => {
-                              setFormType('single')
-                              setFormCorrectAnswers(formCorrectAnswers.slice(0, 1))
-                            }}
-                            className="accent-rose-500"
-                          />
-                          <span className="text-sm text-slate-700">單選題</span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-xl border border-rose-200 hover:bg-rose-50 transition-colors">
-                          <input
-                            type="radio"
-                            name="questionType"
-                            checked={formType === 'multiple'}
-                            onChange={() => setFormType('multiple')}
-                            className="accent-rose-500"
-                          />
-                          <span className="text-sm text-slate-700">多選題</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">題目敘述</label>
-                      <textarea
-                        value={formQuestionText}
-                        onChange={(e) => setFormQuestionText(e.target.value)}
-                        rows={3}
-                        className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-rose-300 bg-white/80 transition-all"
-                        placeholder="請輸入題目內容..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        選項 <span className="text-rose-400 font-normal">（點擊勾選正確答案）</span>
-                      </label>
-                      <div className="space-y-3">
-                        {formOptions.map((option, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <button
-                              type="button"
-                              onClick={() => handleCorrectToggle(index)}
-                              className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                                formCorrectAnswers.includes(index)
-                                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-200'
-                                  : 'border-rose-200 hover:border-emerald-400 hover:bg-emerald-50'
-                              }`}
-                            >
-                              {formCorrectAnswers.includes(index) && '✓'}
-                            </button>
-                            <input
-                              type="text"
-                              value={option}
-                              onChange={(e) => handleOptionChange(index, e.target.value)}
-                              className="flex-1 px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-rose-300 bg-white/80 transition-all"
-                              placeholder={`選項 ${index + 1}`}
-                            />
-                            {formOptions.length > 2 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveOption(index)}
-                                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                              >
-                                ✕
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleAddOption}
-                        className="mt-3 text-sm text-rose-500 hover:text-rose-600 font-medium transition-colors"
-                      >
-                        + 新增選項
-                      </button>
-                    </div>
-
-                    {formError && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-sm text-red-600">
-                        {formError}
-                      </div>
-                    )}
-                  </div>
-                  <div className="px-6 py-5 border-t border-rose-100 bg-rose-50/30 flex justify-end gap-3 rounded-b-3xl">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsFormOpen(false)
-                        resetForm()
-                      }}
-                      className="rounded-2xl px-5 py-2 border-rose-200 hover:bg-rose-50 transition-all"
-                    >
-                      取消
-                    </Button>
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-5 py-2 shadow-lg shadow-rose-200 transition-all duration-200"
-                    >
-                      {isSubmitting ? '儲存中...' : '儲存題目'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-rose-100 overflow-hidden">
               <div className="px-6 py-5 border-b border-rose-100 bg-white/50">
                 <h2 className="text-lg font-semibold text-slate-800">題庫列表</h2>
@@ -482,8 +356,11 @@ export function AdminPage() {
                         <button
                           onClick={() => handleDeleteQuestion(q.id)}
                           className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                          title="刪除題目"
                         >
-                          🗑️
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -494,6 +371,145 @@ export function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Modal - moved outside main content for proper fixed positioning */}
+      {isFormOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-5 border-b border-rose-100 bg-rose-50/50 rounded-t-3xl">
+              <p className="text-xs uppercase tracking-[0.2em] text-rose-400 mb-1">Question Form</p>
+              <h3 className="text-lg font-semibold text-slate-800">新增題目</h3>
+            </div>
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">關卡</label>
+                <select
+                  value={formStage}
+                  onChange={(e) => setFormStage(e.target.value)}
+                  className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-rose-300 bg-white/80 transition-all"
+                >
+                  {STAGES.map((stage) => (
+                    <option key={stage} value={stage}>
+                      {STAGE_LABELS[stage]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">題型</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-xl border border-rose-200 hover:bg-rose-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="questionType"
+                      checked={formType === 'single'}
+                      onChange={() => {
+                        setFormType('single')
+                        setFormCorrectAnswers(formCorrectAnswers.slice(0, 1))
+                      }}
+                      className="accent-rose-500"
+                    />
+                    <span className="text-sm text-slate-700">單選題</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-xl border border-rose-200 hover:bg-rose-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="questionType"
+                      checked={formType === 'multiple'}
+                      onChange={() => setFormType('multiple')}
+                      className="accent-rose-500"
+                    />
+                    <span className="text-sm text-slate-700">多選題</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">題目敘述</label>
+                <textarea
+                  value={formQuestionText}
+                  onChange={(e) => setFormQuestionText(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-rose-300 bg-white/80 transition-all"
+                  placeholder="請輸入題目內容..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  選項 <span className="text-rose-400 font-normal">（點擊勾選正確答案）</span>
+                </label>
+                <div className="space-y-3">
+                  {formOptions.map((option, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleCorrectToggle(index)}
+                        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                          formCorrectAnswers.includes(index)
+                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-200'
+                            : 'border-rose-200 hover:border-emerald-400 hover:bg-emerald-50'
+                        }`}
+                      >
+                        {formCorrectAnswers.includes(index) && '✓'}
+                      </button>
+                      <input
+                        type="text"
+                        value={option}
+                        onChange={(e) => handleOptionChange(index, e.target.value)}
+                        className="flex-1 px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-rose-300 bg-white/80 transition-all"
+                        placeholder={`選項 ${index + 1}`}
+                      />
+                      {formOptions.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveOption(index)}
+                          className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddOption}
+                  className="mt-3 text-sm text-rose-500 hover:text-rose-600 font-medium transition-colors"
+                >
+                  + 新增選項
+                </button>
+              </div>
+
+              {formError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-sm text-red-600">
+                  {formError}
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-5 border-t border-rose-100 bg-rose-50/30 flex justify-end gap-3 rounded-b-3xl">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsFormOpen(false)
+                  resetForm()
+                }}
+                className="rounded-2xl px-5 py-2 border-rose-200 hover:bg-rose-50 transition-all"
+              >
+                取消
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-5 py-2 shadow-lg shadow-rose-200 transition-all duration-200"
+              >
+                {isSubmitting ? '儲存中...' : '儲存題目'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
