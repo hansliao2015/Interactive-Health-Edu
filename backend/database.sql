@@ -34,3 +34,18 @@ CREATE TABLE IF NOT EXISTS stage_progress (
     INDEX idx_user_id (user_id),
     INDEX idx_stage (stage)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create questions table for quiz questions
+CREATE TABLE IF NOT EXISTS questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    stage VARCHAR(20) NOT NULL,
+    question_type ENUM('single', 'multiple') NOT NULL DEFAULT 'single',
+    question_text TEXT NOT NULL,
+    options JSON NOT NULL,
+    correct_answers JSON NOT NULL,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_stage (stage)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

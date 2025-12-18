@@ -21,6 +21,7 @@ require_once 'config.php';
 require_once 'controllers/AuthController.php';
 require_once 'controllers/ProgressController.php';
 require_once 'controllers/AdminController.php';
+require_once 'controllers/QuestionController.php';
 
 // Get the action from query parameter
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -48,6 +49,20 @@ switch ($action) {
     // Admin routes
     case 'admin_get_all_users_progress':
         AdminController::getAllUsersProgress();
+        break;
+    
+    // Question routes
+    case 'create_question':
+        QuestionController::createQuestion();
+        break;
+    case 'get_questions':
+        QuestionController::getQuestions();
+        break;
+    case 'update_question':
+        QuestionController::updateQuestion();
+        break;
+    case 'delete_question':
+        QuestionController::deleteQuestion();
         break;
     
     // Invalid action

@@ -1,4 +1,4 @@
-import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse, UserWithProgress } from '../types'
+import type { StageKey, User, StageProgress, AllProgressMap, ApiResponse, UserWithProgress, Question, QuestionType } from '../types'
 
 const API_BASE_URL = 'http://localhost:8000/api.php'
 
@@ -95,5 +95,68 @@ export const adminGetAllUsersProgress = async (): Promise<ApiResponse<UserWithPr
     return await response.json()
   } catch (error) {
     return { success: false, message: `Failed to get all users progress: ${error}` }
+  }
+}
+
+/* Question API */
+
+export const createQuestion = async (
+  stage: string,
+  questionType: QuestionType,
+  questionText: string,
+  options: string[],
+  correctAnswers: number[],
+  createdBy: number
+): Promise<ApiResponse<Question>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=create_question`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage, questionType, questionText, options, correctAnswers, createdBy }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to create question: ${error}` }
+  }
+}
+
+export const getQuestions = async (stage?: string): Promise<ApiResponse<Question[]>> => {
+  try {
+    const url = stage
+      ? `${API_BASE_URL}?action=get_questions&stage=${stage}`
+      : `${API_BASE_URL}?action=get_questions`
+    const response = await fetch(url)
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to get questions: ${error}` }
+  }
+}
+
+export const updateQuestion = async (
+  id: number,
+  updates: Partial<Omit<Question, 'id' | 'createdAt'>>
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=update_question`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...updates }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to update question: ${error}` }
+  }
+}
+
+export const deleteQuestion = async (id: number): Promise<ApiResponse<void>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}?action=delete_question`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, message: `Failed to delete question: ${error}` }
   }
 }

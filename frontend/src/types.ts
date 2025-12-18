@@ -45,6 +45,18 @@ export type Stage3State = {
   symptomIds: string[]
 }
 
+export type QuestionType = 'single' | 'multiple'
+
+export type Question = {
+  id: number
+  stage: string
+  questionType: QuestionType
+  questionText: string
+  options: string[]
+  correctAnswers: number[]
+  createdAt?: string
+}
+
 export type ApiResponse<T = unknown> = {
   success: boolean
   message: string
