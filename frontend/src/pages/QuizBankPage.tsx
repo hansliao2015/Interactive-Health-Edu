@@ -177,7 +177,7 @@ export function QuizBankPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 flex items-center justify-center">
+      <div className="min-h-page bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">載入題庫中...</p>
@@ -187,7 +187,7 @@ export function QuizBankPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 py-8 px-4">
+    <div className="min-h-page bg-linear-to-br from-rose-50 via-orange-50 to-amber-50 py-8 px-4">
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Header */}
         <header className="space-y-3">

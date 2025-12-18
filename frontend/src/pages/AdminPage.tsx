@@ -173,7 +173,7 @@ export function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-page bg-slate-50 flex items-center justify-center">
         <div className="text-slate-600">載入中...</div>
       </div>
     )
@@ -181,14 +181,14 @@ export function AdminPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-page bg-slate-50 flex items-center justify-center">
         <div className="text-red-600">{error}</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4">
+    <div className="min-h-page bg-slate-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-slate-900">管理員後台</h1>
