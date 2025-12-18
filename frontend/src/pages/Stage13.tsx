@@ -168,7 +168,7 @@ export function Stage13() {
           <p className="text-sm uppercase tracking-[0.4em] text-rose-500">Stage 13 / 我該透析了嗎？</p>
           <h1 className="text-3xl font-black text-rose-800">終局抉擇：HD、PD、移植或支持性療護</h1>
           <p className="text-slate-600">
-            腎臟進入末期時，常見路線有血液透析、腹膜透析、腎臟移植與支持性/安寧療護。每條路線都有操作方式、生活節奏與風險，先看懂再選擇。
+            腎臟進入末期時，常見路線有血液透析、腹膜透析、腎臟移植與支持性/安寧療護。每條路線都有不同生活節奏與風險，先看懂再選擇。
           </p>
           {gateNotice && <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{gateNotice}</div>}
         </header>
@@ -179,7 +179,6 @@ export function Stage13() {
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-rose-500">路線切換</p>
                 <h2 className="text-xl font-black text-slate-900">點圓圈切換四條路線</h2>
-                <p className="text-sm text-slate-600">每條路線都要看過，才能進行解鎖測驗。</p>
               </div>
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-2 text-sm text-emerald-800">已瀏覽：{visited.length}/4</div>
             </div>
@@ -300,13 +299,6 @@ export function Stage13() {
             </div>
           </div>
         </section>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-slate-600">請先看完四條路線，再進入測驗；答對即可回到總覽。</div>
-          <Button onClick={handleArrowClick} className="bg-rose-500 hover:bg-rose-600 text-white px-6 cursor-pointer">
-            前往解鎖測驗
-          </Button>
-        </div>
       </div>
 
       {isQuizOpen && (

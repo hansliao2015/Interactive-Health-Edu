@@ -3,6 +3,7 @@ import { Button } from '../components/ui/button'
 import { getStageUnlocked } from '../lib/journeyProgress'
 import type { StageKey } from '../types'
 import { useEffect, useMemo, useState } from 'react'
+import { clearStageState } from '../lib/stageState'
 
 type JourneyStage = {
   title: string
@@ -282,6 +283,14 @@ export function Stage0() {
   })
 
   const sortedStageKeys = useMemo(() => stageKeys, [])
+  const allCompleted = useMemo(() => sortedStageKeys.every((key) => unlockedMap[key]), [sortedStageKeys, unlockedMap])
+
+  const clearAdventureProgress = () => {
+    if (typeof window === 'undefined') return
+    stageKeys.forEach((key) => clearStageState(key))
+    window.localStorage.removeItem('journeyProgress.v1')
+    setUnlockedMap({})
+  }
 
   useEffect(() => {
     let mounted = true
@@ -325,6 +334,21 @@ export function Stage0() {
               <Link to="/">回到首頁</Link>
             </Button>
           </div>
+          {allCompleted && (
+            <div className="mt-6 rounded-3xl bg-white/85 border border-emerald-200 shadow-lg px-6 py-5 max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-4 text-emerald-800">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-emerald-600">All clear</p>
+                  <p className="text-lg font-bold">所有關卡已通關！</p>
+                  <p className="text-sm text-slate-600">恭喜你通過所有關卡！可以選擇重置闖關進度或點擊卡片複習特定關卡 </p>
+                </div>
+              </div>
+              <Button onClick={clearAdventureProgress} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                清除冒險進度
+              </Button>
+            </div>
+          )}
         </section>
 
         <section id="map" className="mt-16">
