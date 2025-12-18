@@ -14,36 +14,42 @@ type HabitCard = {
   border: string
   steps: string[]
   reminders: string[]
+  metrics: string[]
+  quickChecks: string[]
 }
 
 const habitCards: HabitCard[] = [
   {
     id: 'wash',
     title: '正確洗手',
-    tagline: '20 秒完成「內外夾弓大立腕」，腎友避免把病菌帶回身體',
+    tagline: '20 秒完成「內外夾弓大立腕」，避開帶菌回家與進入血液的風險',
     icon: '🧼',
     gradient: 'from-cyan-50 via-white to-emerald-50',
     border: 'border-cyan-200',
     steps: [
-      '掌心、手背、指縫、指背、拇指、指尖、手腕各搓 20 秒',
-      '以流動清水沖淨後擦乾，再用 75% 酒精搓揉 20 秒',
-      '進食前後、看病或透析前後、回家後、上廁所後一定要洗手',
+      '掌心、手背、指縫、指背、拇指、指尖、手腕各搓 20 秒，雙手全覆蓋泡沫',
+      '以流動清水沖淨後擦乾，再用 75% 酒精搓揉 20 秒加強，特別在醫療場域',
+      '進食前後、看病或透析前後、回家後、上廁所後與碰過公用按鈕後都要洗手',
     ],
     reminders: ['沒有水時可用乾洗手，但手上需無明顯污垢', '腎友免疫力較弱，外出隨身小瓶酒精噴霧更安心'],
+    metrics: ['20 秒完整流程', '流動水 + 75% 酒精', '看診/透析前後必做'],
+    quickChecks: ['今天出門回家有立刻洗手嗎？', '搭電梯、按機器後有用酒精嗎？', '洗手時有搓到拇指與手腕嗎？'],
   },
   {
     id: 'move',
     title: '規律運動',
-    tagline: '每週 150 分鐘中強度，維持免疫力與血壓穩定',
+    tagline: '每週 150 分鐘中強度，讓免疫力、血壓與血糖都穩定',
     icon: '🤸‍♂️',
     gradient: 'from-orange-50 via-white to-amber-50',
     border: 'border-orange-200',
     steps: [
-      '快走、騎車或居家肌力都可以，累積到每天 30 分鐘',
-      '運動前後補水，依腎功能狀況控制量，避免過度疲勞',
-      '人多時選擇通風處或戶外，保持安全距離',
+      '快走、騎車或居家肌力都可以，分段累積到每天 30 分鐘中強度',
+      '運動前後補水，依腎功能狀況與醫囑控制量，避免大量流汗脫水',
+      '人多或密閉時選擇通風處或戶外，必要時口罩與保持距離',
     ],
     reminders: ['暖身 5–10 分鐘讓關節醒來，收操放鬆避免酸痛', '不舒服、發燒或血壓不穩時暫停運動，先休息'],
+    metrics: ['每週 150 分鐘', '心跳微喘可講話', '暖身/收操各 5–10 分鐘'],
+    quickChecks: ['今天累積到 30 分鐘了嗎？', '運動後有補足建議水量嗎？', '最近血壓/血糖是否更穩？'],
   },
   {
     id: 'mask',
@@ -53,11 +59,13 @@ const habitCards: HabitCard[] = [
     gradient: 'from-indigo-50 via-white to-sky-50',
     border: 'border-indigo-200',
     steps: [
-      '戴口罩前先洗手，覆蓋鼻子、嘴巴、下巴並壓緊鼻樑',
-      '口罩濕了或髒了立即更換，不重複使用一次性口罩',
-      '脫口罩只碰耳帶，內層向內折好後丟入垃圾桶，醫院、透析室務必全程佩戴',
+      '戴口罩前先洗手，覆蓋鼻子、嘴巴、下巴並壓緊鼻樑，確保沒有縫隙',
+      '口罩濕了、髒了或呼吸阻力變大立即更換，一次性口罩不重複用',
+      '脫口罩只碰耳帶，內層向內折好後丟垃圾桶，醫院、透析室務必全程佩戴',
     ],
     reminders: ['不要把口罩掛在下巴或反覆摸外層', '搭乘大眾運輸、看診或人潮密集時務必全程佩戴'],
+    metrics: ['鼻樑壓緊無縫隙', '濕/髒立即更換', '醫療場域全程戴好'],
+    quickChecks: ['今天有摸口罩外側嗎？若有要洗手。', '回診時是否全程戴好？', '口罩濕掉時是否立即換新？'],
   },
   {
     id: 'sleep',
@@ -67,11 +75,13 @@ const habitCards: HabitCard[] = [
     gradient: 'from-rose-50 via-white to-purple-50',
     border: 'border-rose-200',
     steps: [
-      '固定睡眠與起床時間，讓身體有穩定節奏',
-      '睡前 1 小時遠離 3C、咖啡因，營造昏暗安靜的環境',
-      '白天適度日曬與運動，晚上更好入睡',
+      '固定睡眠與起床時間，讓身體有穩定節奏；午後少午睡避免失眠',
+      '睡前 1 小時遠離 3C、咖啡因，房間保持昏暗安靜與適溫',
+      '白天適度日曬與運動，減少晚餐過鹹、過辣與過量飲水',
     ],
     reminders: ['連續熬夜會削弱免疫力，也讓血壓與腎功能更吃力', '常失眠可縮短午睡或尋求專業協助'],
+    metrics: ['7–9 小時/日', '固定睡眠起床', '睡前 1hr 無 3C/咖啡因'],
+    quickChecks: ['昨晚睡滿 7 小時嗎？', '睡前有關掉手機通知嗎？', '今天咖啡/茶安排在下午前嗎？'],
   },
 ]
 
@@ -97,8 +107,6 @@ export function Stage9() {
   const [checkedHabits, setCheckedHabits] = useState<string[]>(() => saved?.checkedHabits ?? [])
   const [activeHabitId, setActiveHabitId] = useState<string>(() => saved?.activeHabitId ?? habitCards[0].id)
   const [gateNotice, setGateNotice] = useState<string | null>(null)
-
-  const allHabitsChecked = checkedHabits.length === habitCards.length
   const progressPercent = Math.round((checkedHabits.length / habitCards.length) * 100)
   const activeHabit = habitCards.find((habit) => habit.id === activeHabitId) ?? habitCards[0]
 
@@ -247,6 +255,17 @@ export function Stage9() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">重點指標</p>
+                <div className="flex flex-wrap gap-2">
+                  {activeHabit.metrics.map((metric) => (
+                    <span key={metric} className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
+                      {metric}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-3">
                 {activeHabit.steps.map((step, idx) => (
                   <div key={idx} className="flex gap-3 items-start">
@@ -259,40 +278,29 @@ export function Stage9() {
               </div>
 
               <div className="grid sm:grid-cols-2 gap-3">
-                {activeHabit.reminders.map((reminder, idx) => (
-                  <div key={idx} className="rounded-2xl border border-rose-100 bg-rose-50/60 px-4 py-3 text-sm text-rose-800">
-                    {reminder}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid lg:grid-cols-1">
-          <div className="bg-white/90 rounded-3xl shadow-lg border border-rose-100 p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-emerald-100 flex items-center justify-center text-lg">✋</div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-emerald-600">洗手 7 字訣</p>
-                <h3 className="text-xl font-bold text-slate-900">20 秒完整流程</h3>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {handwashWords.map((word, idx) => (
-                <div
-                  key={word}
-                  className="px-3 py-2 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100 text-sm font-semibold shadow-sm"
-                >
-                  {idx + 1}. {word}
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 space-y-2">
+                  <p className="text-xs uppercase tracking-[0.25em] text-emerald-700">今日檢核</p>
+                  <ul className="space-y-1 text-sm text-emerald-900">
+                    {activeHabit.quickChecks.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-emerald-600">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
-            </div>
-              <p className="text-sm text-slate-700 leading-relaxed">
-              內（掌心）→外（手背）→夾（指縫）→弓（指背關節）→大（拇指）→立（指尖指甲）→腕（手腕），每一步都要有泡沫並搓滿 20 秒。腎友回診、透析前後更要確實洗手。
-            </p>
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-800">
-              小提醒：公共場合觸摸電梯按鈕、扶手、點餐機後，別忘了立刻洗手或使用乾洗手。
+                <div className="rounded-2xl border border-rose-100 bg-rose-50/60 px-4 py-3 space-y-2">
+                  <p className="text-xs uppercase tracking-[0.25em] text-rose-600">小提醒</p>
+                  <ul className="space-y-1 text-sm text-rose-800">
+                    {activeHabit.reminders.map((reminder, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-rose-600">•</span>
+                        <span>{reminder}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
