@@ -252,7 +252,7 @@ function KidneyMascot() {
 
 export function Stage0() {
   const navigate = useNavigate()
-  const [unlockedMap, setUnlockedMap] = useState<Record<StageKey, boolean>>({})
+  const [unlockedMap, setUnlockedMap] = useState<Partial<Record<StageKey, boolean>>>({})
 
   const totalStages = journeyStages.length
   const angleStep = 360 / totalStages
@@ -301,7 +301,7 @@ export function Stage0() {
       return [key, unlocked] as const
     })).then((entries) => {
       if (!mounted) return
-      const map: Record<StageKey, boolean> = {}
+      const map: Partial<Record<StageKey, boolean>> = {}
       entries.forEach(([key, unlocked]) => {
         map[key] = unlocked
       })
